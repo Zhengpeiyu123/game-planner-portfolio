@@ -1,24 +1,75 @@
 {
-  "version": 1,
-  "target": "public/downloads/huazhongren-project-introduction-updated.pptx",
-  "bytes": 118161891,
-  "sha256": "370308a2ed189effbed0cbaf7986c2a62d08093b846ad24dcf1bb895c2f599c1",
-  "chunkBytes": 41943040,
-  "parts": [
+  "version": 2,
+  "chunkBytes": 16777216,
+  "files": [
     {
-      "file": "huazhongren-project-introduction-updated.pptx.part-001",
-      "bytes": 41943040,
-      "sha256": "42df65f0908a3e089d44a0f1dd0784d0e375ffe5b0c0925d707775071d2e23f2"
+      "target": "public/downloads/huazhongren-project-introduction-updated.pptx",
+      "bytes": 118161891,
+      "sha256": "370308a2ed189effbed0cbaf7986c2a62d08093b846ad24dcf1bb895c2f599c1",
+      "parts": [
+        {
+          "file": "huazhongren-project-introduction-updated.pptx.part-001",
+          "bytes": 16777216,
+          "sha256": "9a5b429286411186f50bde495964038dbbe3b49ec71c29ceda62d5001fcd3436"
+        },
+        {
+          "file": "huazhongren-project-introduction-updated.pptx.part-002",
+          "bytes": 16777216,
+          "sha256": "89a1373485b138fe3c97da572509d8c7c2a0a06536f7c31b4968010101019fd6"
+        },
+        {
+          "file": "huazhongren-project-introduction-updated.pptx.part-003",
+          "bytes": 16777216,
+          "sha256": "6d9ed9c62ef53f01ab5f85c130d8d15bd1c94acbf656a43b8ca2bd46c10968e1"
+        },
+        {
+          "file": "huazhongren-project-introduction-updated.pptx.part-004",
+          "bytes": 16777216,
+          "sha256": "2bbcb153a564c518affcd7932bbc2b3c8f4ce3cd8cc16c481e5e4ec20481fbdc"
+        },
+        {
+          "file": "huazhongren-project-introduction-updated.pptx.part-005",
+          "bytes": 16777216,
+          "sha256": "c255b7d2c6b39b58f154f5ed88b4f4f3df591c8d49708e62098ebe222e73b595"
+        },
+        {
+          "file": "huazhongren-project-introduction-updated.pptx.part-006",
+          "bytes": 16777216,
+          "sha256": "97be61101792baa08d8daf43647a8e0236fda931b1ada6e8d285f0c9783da606"
+        },
+        {
+          "file": "huazhongren-project-introduction-updated.pptx.part-007",
+          "bytes": 16777216,
+          "sha256": "460014e261deb4385db58181aeee6370181ddd2abacd4ef1bc788767e2e3a3c8"
+        },
+        {
+          "file": "huazhongren-project-introduction-updated.pptx.part-008",
+          "bytes": 721379,
+          "sha256": "396e5a30bc011c48eb4f07b41d3a244a47ffae33035d7fd2ed81a57048660334"
+        }
+      ]
     },
     {
-      "file": "huazhongren-project-introduction-updated.pptx.part-002",
-      "bytes": 41943040,
-      "sha256": "6cc02539cd1b9510726b1a8e930db41f213b1ae6d50c8b717e111dcf3d9114a3"
-    },
-    {
-      "file": "huazhongren-project-introduction-updated.pptx.part-003",
-      "bytes": 34275811,
-      "sha256": "3933e29769485253e6f0648e147bb5ecf05300be98c7233eea06b1eeef4ba28b"
+      "target": "public/downloads/huazhongren-design-v5.pptx",
+      "bytes": 33900507,
+      "sha256": "8be6a5c40cca24a7efb9e5be65a00ed1d57ef80cc76e9acb360dbc842984a5f5",
+      "parts": [
+        {
+          "file": "huazhongren-design-v5.pptx.part-001",
+          "bytes": 16777216,
+          "sha256": "e6aa85fda859cd7bb679777d545fa99b45b6876e4b2cb7d57b31fa7dd271b02f"
+        },
+        {
+          "file": "huazhongren-design-v5.pptx.part-002",
+          "bytes": 16777216,
+          "sha256": "49d7a1031c3b2cf40de4ce42809fdb9dc91fb1e5ec9740eea8365ca814f65bd4"
+        },
+        {
+          "file": "huazhongren-design-v5.pptx.part-003",
+          "bytes": 346075,
+          "sha256": "0631d544b6a46c45f90863ac35193405ec92c3dca3c11df4ed94dc4719e32686"
+        }
+      ]
     }
   ]
 }

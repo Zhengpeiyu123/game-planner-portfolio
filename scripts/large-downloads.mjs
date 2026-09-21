@@ -6,14 +6,17 @@ import { link, lstat, mkdir, mkdtemp, open, readFile, realpath, rmdir, unlink, w
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 
-export const TARGET = 'public/downloads/huazhongren-project-introduction-updated.pptx';
+export const TARGETS = Object.freeze([
+  'public/downloads/huazhongren-project-introduction-updated.pptx',
+  'public/downloads/huazhongren-design-v5.pptx',
+]);
 export const ARCHIVE = 'release-assets/large-downloads';
-export const CHUNK_BYTES = 40 * 1024 * 1024;
-const FILE_NAME = TARGET.split('/').at(-1);
+export const CHUNK_BYTES = 16 * 1024 * 1024;
+const FILE_NAMES = TARGETS.map((target) => target.split('/').at(-1));
 const PROJECT_ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const HASH = /^[a-f0-9]{64}$/;
 const READ_FLAGS = constants.O_RDONLY | (constants.O_NOFOLLOW || 0);
-const partName = (index) => `${FILE_NAME}.part-${String(index + 1).padStart(3, '0')}`;
+const partName = (fileIndex, index) => `${FILE_NAMES[fileIndex]}.part-${String(index + 1).padStart(3, '0')}`;
 const fail = (message) => { throw new Error(message); };
 
 async function maybeStat(path) {
@@ -59,18 +62,23 @@ async function fingerprint(path) {
 const matches = (actual, expected) => actual.bytes === expected.bytes && actual.sha256 === expected.sha256;
 
 export function validateManifest(manifest) {
-  if (!manifest || manifest.version !== 1 || manifest.target !== TARGET
-    || manifest.chunkBytes !== CHUNK_BYTES || !Number.isSafeInteger(manifest.bytes)
-    || manifest.bytes <= 0 || typeof manifest.sha256 !== 'string' || !HASH.test(manifest.sha256)
-    || !Array.isArray(manifest.parts) || manifest.parts.length !== Math.ceil(manifest.bytes / CHUNK_BYTES)) {
-    fail('Invalid large-download manifest header or target');
+  if (!manifest || manifest.version !== 2 || manifest.chunkBytes !== CHUNK_BYTES
+    || !Array.isArray(manifest.files) || manifest.files.length !== TARGETS.length) {
+    fail('Invalid large-download manifest header or target list');
   }
-  manifest.parts.forEach((part, index) => {
-    const expectedBytes = Math.min(CHUNK_BYTES, manifest.bytes - index * CHUNK_BYTES);
-    if (!part || part.file !== partName(index) || part.bytes !== expectedBytes
-      || typeof part.sha256 !== 'string' || !HASH.test(part.sha256)) {
-      fail(`Invalid manifest part ${index + 1}: expected fixed name, size, and SHA256`);
+  manifest.files.forEach((file, fileIndex) => {
+    if (!file || file.target !== TARGETS[fileIndex] || !Number.isSafeInteger(file.bytes)
+      || file.bytes <= 0 || typeof file.sha256 !== 'string' || !HASH.test(file.sha256)
+      || !Array.isArray(file.parts) || file.parts.length !== Math.ceil(file.bytes / CHUNK_BYTES)) {
+      fail(`Invalid manifest file ${fileIndex + 1}: expected fixed target, size, and SHA256`);
     }
+    file.parts.forEach((part, index) => {
+      const expectedBytes = Math.min(CHUNK_BYTES, file.bytes - index * CHUNK_BYTES);
+      if (!part || part.file !== partName(fileIndex, index) || part.bytes !== expectedBytes
+        || typeof part.sha256 !== 'string' || !HASH.test(part.sha256)) {
+        fail(`Invalid manifest part ${fileIndex + 1}/${index + 1}: expected fixed name, size, and SHA256`);
+      }
+    });
   });
   return manifest;
 }
@@ -92,11 +100,11 @@ async function writeAll(handle, buffer) {
   }
 }
 
-async function inspectParts(directory, manifest, output) {
+async function inspectParts(directory, file, fileIndex, output) {
   const total = createHash('sha256');
   let totalBytes = 0;
-  for (const [index, part] of manifest.parts.entries()) {
-    const path = join(directory, partName(index));
+  for (const [index, part] of file.parts.entries()) {
+    const path = join(directory, partName(fileIndex, index));
     const stat = await regularFile(path);
     if (stat.size !== part.bytes) fail(`Part size mismatch: ${part.file}`);
     const hash = createHash('sha256');
@@ -111,7 +119,7 @@ async function inspectParts(directory, manifest, output) {
     }
     if (bytes !== part.bytes || hash.digest('hex') !== part.sha256) fail(`Part SHA256 mismatch: ${part.file}`);
   }
-  if (totalBytes !== manifest.bytes || total.digest('hex') !== manifest.sha256) {
+  if (totalBytes !== file.bytes || total.digest('hex') !== file.sha256) {
     fail('Combined download size or SHA256 mismatch');
   }
 }
@@ -121,53 +129,69 @@ async function cleanTemporary(directory, names) {
   await rmdir(directory);
 }
 
-const summary = (status, manifest) => ({ status, target: TARGET, bytes: manifest.bytes, sha256: manifest.sha256, parts: manifest.parts.length });
+const fileSummary = (file) => ({ target: file.target, bytes: file.bytes, sha256: file.sha256, parts: file.parts.length });
+const summary = (status, manifest) => ({
+  status,
+  bytes: manifest.files.reduce((total, file) => total + file.bytes, 0),
+  parts: manifest.files.reduce((total, file) => total + file.parts.length, 0),
+  files: manifest.files.map(fileSummary),
+});
 
 // root is injectable only for isolated tests. The CLI accepts no path arguments.
 export async function pack(root = PROJECT_ROOT) {
   const sourceDirectory = await fixedDirectory(root, 'public/downloads');
-  const source = join(sourceDirectory, FILE_NAME);
-  const original = await fingerprint(source);
-  if (!original.bytes) fail('Refusing to pack an empty download');
+  const originals = [];
+  for (const name of FILE_NAMES) {
+    const original = await fingerprint(join(sourceDirectory, name));
+    if (!original.bytes) fail(`Refusing to pack an empty download: ${name}`);
+    originals.push(original);
+  }
   const directory = await fixedDirectory(root, ARCHIVE, true);
   if (await regularFile(join(directory, 'manifest.json'), true)) {
     const { manifest } = await readManifest(root);
-    if (!matches(original, manifest)) fail('Existing bundle differs from source; refusing to replace it');
-    await inspectParts(directory, manifest);
+    for (const [index, file] of manifest.files.entries()) {
+      if (!matches(originals[index], file)) fail('Existing bundle differs from source; refusing to replace it');
+      await inspectParts(directory, file, index);
+    }
     return summary('already-packed', manifest);
   }
 
-  const manifest = { version: 1, target: TARGET, ...original, chunkBytes: CHUNK_BYTES, parts: [] };
+  const manifest = {
+    version: 2, chunkBytes: CHUNK_BYTES,
+    files: TARGETS.map((target, index) => ({ target, ...originals[index], parts: [] })),
+  };
   const temporary = await mkdtemp(join(directory, '.pack-'));
   const temporaryNames = [];
   const installed = [];
   let sourceHandle;
   try {
-    sourceHandle = await open(source, READ_FLAGS);
-    const total = createHash('sha256');
-    let remaining = original.bytes;
-    while (remaining > 0) {
-      const bytes = Math.min(CHUNK_BYTES, remaining);
-      const buffer = Buffer.allocUnsafe(bytes);
-      let offset = 0;
-      while (offset < bytes) {
-        const result = await sourceHandle.read(buffer, offset, bytes - offset, null);
-        if (!result.bytesRead) fail('Source changed while packing');
-        offset += result.bytesRead;
+    for (const [fileIndex, file] of manifest.files.entries()) {
+      sourceHandle = await open(join(sourceDirectory, FILE_NAMES[fileIndex]), READ_FLAGS);
+      const total = createHash('sha256');
+      let remaining = file.bytes;
+      while (remaining > 0) {
+        const bytes = Math.min(CHUNK_BYTES, remaining);
+        const buffer = Buffer.allocUnsafe(bytes);
+        let offset = 0;
+        while (offset < bytes) {
+          const result = await sourceHandle.read(buffer, offset, bytes - offset, null);
+          if (!result.bytesRead) fail('Source changed while packing');
+          offset += result.bytesRead;
+        }
+        total.update(buffer);
+        const name = partName(fileIndex, file.parts.length);
+        temporaryNames.push(name);
+        await writeFile(join(temporary, name), buffer, { flag: 'wx' });
+        file.parts.push({ file: name, bytes, sha256: createHash('sha256').update(buffer).digest('hex') });
+        remaining -= bytes;
       }
-      total.update(buffer);
-      const file = partName(manifest.parts.length);
-      temporaryNames.push(file);
-      await writeFile(join(temporary, file), buffer, { flag: 'wx' });
-      manifest.parts.push({ file, bytes, sha256: createHash('sha256').update(buffer).digest('hex') });
-      remaining -= bytes;
+      const tail = await sourceHandle.read(Buffer.alloc(1), 0, 1, null);
+      if (tail.bytesRead || total.digest('hex') !== file.sha256) fail('Source changed while packing');
+      await sourceHandle.close();
+      sourceHandle = null;
+      await inspectParts(temporary, file, fileIndex);
     }
-    const tail = await sourceHandle.read(Buffer.alloc(1), 0, 1, null);
-    if (tail.bytesRead || total.digest('hex') !== original.sha256) fail('Source changed while packing');
-    await sourceHandle.close();
-    sourceHandle = null;
     validateManifest(manifest);
-    await inspectParts(temporary, manifest);
     temporaryNames.push('manifest.json');
     await writeFile(join(temporary, 'manifest.json'), `${JSON.stringify(manifest, null, 2)}\n`, { flag: 'wx' });
     // Hard links publish complete files without ever overwriting existing data.
@@ -189,41 +213,56 @@ export async function pack(root = PROJECT_ROOT) {
 
 export async function verify(root = PROJECT_ROOT) {
   const { directory, manifest } = await readManifest(root);
-  await inspectParts(directory, manifest);
   const sourceDirectory = await fixedDirectory(root, 'public/downloads', false, true);
-  if (!sourceDirectory) return { ...summary('verified', manifest), targetExists: false };
-  const target = join(sourceDirectory, FILE_NAME);
-  const exists = Boolean(await regularFile(target, true));
-  if (exists && !matches(await fingerprint(target), manifest)) fail('Existing download SHA256 mismatch');
-  return { ...summary('verified', manifest), targetExists: exists };
+  const files = [];
+  for (const [index, file] of manifest.files.entries()) {
+    await inspectParts(directory, file, index);
+    const target = sourceDirectory && join(sourceDirectory, FILE_NAMES[index]);
+    const targetExists = Boolean(target && await regularFile(target, true));
+    if (targetExists && !matches(await fingerprint(target), file)) fail(`Existing download SHA256 mismatch: ${file.target}`);
+    files.push({ ...fileSummary(file), targetExists });
+  }
+  return { ...summary('verified', manifest), files };
 }
 
 export async function restore(root = PROJECT_ROOT) {
   const { directory, manifest } = await readManifest(root);
   const targetDirectory = await fixedDirectory(root, 'public/downloads', true);
-  const target = join(targetDirectory, FILE_NAME);
-  if (await regularFile(target, true)) {
-    if (!matches(await fingerprint(target), manifest)) fail('Existing download differs; refusing to overwrite it');
-    await inspectParts(directory, manifest);
-    return summary('already-restored', manifest);
+  const existing = [];
+  // Preflight the whole two-file bundle before publishing either missing file.
+  for (const [index, file] of manifest.files.entries()) {
+    const target = join(targetDirectory, FILE_NAMES[index]);
+    const exists = Boolean(await regularFile(target, true));
+    if (exists && !matches(await fingerprint(target), file)) fail('Existing download differs; refusing to overwrite it');
+    await inspectParts(directory, file, index);
+    existing.push(exists);
   }
+  const files = [];
+  for (const [index, file] of manifest.files.entries()) {
+    const status = existing[index] ? 'already-restored' : await restoreFile(targetDirectory, directory, file, index);
+    files.push({ ...fileSummary(file), status });
+  }
+  return { ...summary(files.every((file) => file.status === 'already-restored') ? 'already-restored' : 'restored', manifest), files };
+}
 
+async function restoreFile(targetDirectory, directory, file, fileIndex) {
+  const target = join(targetDirectory, FILE_NAMES[fileIndex]);
   const temporary = await mkdtemp(join(targetDirectory, '.large-download-restore-'));
   const name = 'verified-download.pptx';
   let handle;
   try {
     handle = await open(join(temporary, name), 'wx');
-    await inspectParts(directory, manifest, handle);
+    await inspectParts(directory, file, fileIndex, handle);
     await handle.sync();
     await handle.close();
     handle = null;
     try { await link(join(temporary, name), target); }
     catch (error) {
       // Another build may have installed the same verified file meanwhile.
-      if (error.code !== 'EEXIST' || !matches(await fingerprint(target), manifest)) throw error;
-      return summary('already-restored', manifest);
+      if (error.code !== 'EEXIST' || !matches(await fingerprint(target), file)) throw error;
+      return 'already-restored';
     }
-    return summary('restored', manifest);
+    return 'restored';
   } finally {
     await handle?.close();
     await cleanTemporary(temporary, [name]);
