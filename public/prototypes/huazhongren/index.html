@@ -1,0 +1,89 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#140f0b">
+  <title>画中人</title>
+  <link rel="stylesheet" href="gallery.css">
+</head>
+<body>
+  <main id="gallery-app" data-state="menu">
+    <section id="start-menu" class="start-menu" data-art-version="user-book-v5" data-page-turn-compatible="true" aria-labelledby="start-title">
+      <div class="start-menu-visual" aria-hidden="true">
+        <img id="start-menu-poster" src="assets/start-menu/poster.png" alt="">
+        <video id="start-menu-video" autoplay muted loop playsinline preload="metadata" poster="assets/start-menu/poster.png">
+          <source src="assets/start-menu/living-painting-loop.mp4" type="video/mp4">
+        </video>
+      </div>
+      <div class="start-menu-panel">
+        <div class="start-dossier-copy visually-hidden">
+          <p class="start-kicker">夜间馆藏</p>
+          <h1 id="start-title">画中人</h1>
+          <p class="start-intro">推开画廊的门，走进画布背后的记忆。</p>
+        </div>
+        <nav class="start-actions" aria-label="游戏菜单">
+          <button id="start-game" type="button" aria-label="开始游戏"><span class="visually-hidden">开始游戏</span></button>
+          <button id="continue-game" type="button" aria-label="继续游戏" disabled><span class="visually-hidden">继续游戏</span></button>
+          <button id="start-settings" type="button" aria-label="游戏设置"><span class="visually-hidden">游戏设置</span></button>
+        </nav>
+      </div>
+      <div id="start-page-flip" class="start-page-flip" aria-hidden="true"><i></i></div>
+      <video id="start-page-turn-video" hidden playsinline preload="none" poster="assets/start-menu/poster.png" aria-hidden="true">
+        <source src="assets/start-menu/page-turn.mp4" type="video/mp4">
+      </video>
+    </section>
+
+    <section id="gallery" class="gallery" aria-label="画廊" hidden>
+      <header class="gallery-heading gallery-title-plaque">
+        <span aria-hidden="true"></span><h1>画中人</h1><span aria-hidden="true"></span>
+      </header>
+      <div class="paintings" aria-label="作品陈列">
+        <button class="painting-card" data-level="potato" aria-disabled="false" aria-label="进入吃土豆的人">
+          <span class="gallery-spotlight" aria-hidden="true"></span>
+          <span class="frame"><img src="assets/potato-cover.webp" alt="吃土豆的人画作封面"><i class="dust-cloth" aria-hidden="true"></i><i class="archive-cord" aria-hidden="true"></i><i class="wax-lock" aria-hidden="true"></i></span>
+          <span class="plaque"><strong>吃土豆的人</strong><small data-status>可进入</small><i class="plaque-state-mark collection-stamp" aria-hidden="true">藏</i></span>
+        </button>
+        <button class="painting-card is-locked" data-level="redbeard" aria-disabled="true" aria-label="红胡子的人，尚未解锁">
+          <span class="gallery-spotlight" aria-hidden="true"></span>
+          <span class="frame"><img src="assets/redbeard-cover.webp" alt="红胡子的人画作封面"><i class="dust-cloth" aria-hidden="true"></i><i class="archive-cord" aria-hidden="true"></i><i class="wax-lock lock-mark" aria-hidden="true"></i></span>
+          <span class="plaque"><strong>红胡子的人</strong><small data-status>完成左幅后开启</small><i class="plaque-state-mark collection-stamp" aria-hidden="true">藏</i></span>
+        </button>
+        <span class="gallery-archive-line" aria-hidden="true"></span>
+      </div>
+      <div class="gallery-actions">
+        <button id="settings-toggle" class="round-seal settings-seal" type="button" aria-label="打开设置" title="设置"><span aria-hidden="true">⚙</span></button>
+        <button id="sound-toggle" class="round-seal archive-seal" type="button" aria-label="关闭声音" title="声音"><span aria-hidden="true">◖</span><b class="visually-hidden">声音：开</b></button>
+      </div>
+    </section>
+
+    <aside id="settings-drawer" class="settings-drawer" role="dialog" aria-modal="true" aria-labelledby="settings-title" hidden>
+      <header><span>馆藏设置</span><h2 id="settings-title">夜间展厅</h2><button id="settings-close" type="button" aria-label="关闭设置">×</button></header>
+      <section class="settings-group settings-group--appearance"><h3>显示与声音</h3>
+        <label>环境声音<input id="gallery-volume" type="range" min="0" max="100" value="80"></label>
+        <label class="toggle-line"><input id="gallery-reduce-motion" type="checkbox"><span>减少动态效果</span></label>
+        <label class="toggle-line"><input id="gallery-high-contrast" type="checkbox"><span>高对比模式</span></label>
+        <button id="gallery-fullscreen" type="button">切换全屏</button>
+      </section>
+      <section class="settings-group settings-group--progress"><h3>存档与进度</h3><p>馆藏状态会保存在本机浏览器中。</p><button id="clear-progress" class="danger-action" type="button">清除全部馆藏记录</button></section>
+    </aside>
+    <div id="clear-confirm" class="confirm-panel" role="dialog" aria-modal="true" aria-labelledby="clear-confirm-title" hidden>
+      <section id="clear-confirm-first"><p id="clear-confirm-title">第一确认：清除存档与进度？</p><p id="clear-confirm-stage">这会清除画廊与两幅画的全部记录。</p><button id="clear-cancel" type="button">保留记录</button><button id="clear-continue" type="button">继续确认</button></section>
+      <section id="clear-confirm-second" hidden><p>第二确认：操作无法撤回。</p><button id="clear-back" type="button">返回上一步</button><button id="clear-yes" type="button">确认清除全部记录</button></section>
+    </div>
+
+    <section id="level-shell" class="level-shell" hidden aria-label="画中旅程">
+      <div id="loading-card" class="loading-card" role="status"><i></i><span>正在靠近画布……</span></div>
+      <div id="load-error" class="load-error" hidden>
+        <strong>画面暂时没有回应</strong>
+        <button id="retry-level" type="button">重新进入</button>
+      </div>
+      <button id="gallery-return" class="return-button" type="button">返回画廊</button>
+    </section>
+
+    <div id="rotate-notice" class="rotate-notice" role="status"><strong>请横置设备</strong></div>
+  </main>
+  <script src="gallery-state.js"></script>
+  <script src="gallery.js"></script>
+</body>
+</html>

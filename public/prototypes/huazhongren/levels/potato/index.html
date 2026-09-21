@@ -1,0 +1,2111 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>偷土豆的人 - 限时寻物玩法</title>
+  <style>
+    :root {
+      --coal: #090a0a;
+      --ink: #11130f;
+      --panel: rgba(18, 20, 17, 0.84);
+      --panel-strong: rgba(12, 14, 12, 0.94);
+      --line: rgba(238, 228, 199, 0.22);
+      --paper: #f4ead2;
+      --muted: #c5b99c;
+      --gold: #d8a947;
+      --ember: #b8562e;
+      --frost: #9eb6bb;
+      --green: #7e9565;
+      --shadow: rgba(0, 0, 0, 0.55);
+      font-family: "Songti SC", "STSong", "Noto Serif SC", "Microsoft YaHei", serif;
+    }
+
+    * {
+      box-sizing: border-box;
+      cursor: url("../../assets/ui-v2/paintbrush-cursor.png") 3 60, auto !important;
+    }
+
+    html,
+    body {
+      width: 100%;
+      height: 100%;
+      margin: 0;
+      background: var(--coal);
+      color: var(--paper);
+      overflow: hidden;
+    }
+
+    button {
+      font: inherit;
+    }
+
+    .app {
+      position: relative;
+      width: 100vw;
+      height: 100vh;
+      min-height: 520px;
+      background:
+        radial-gradient(circle at 18% 18%, rgba(216, 169, 71, 0.1), transparent 28%),
+        linear-gradient(180deg, #141612 0%, #070808 100%);
+      overflow: hidden;
+    }
+
+    .screen {
+      position: absolute;
+      inset: 0;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+    }
+
+    .screen.is-active {
+      display: flex;
+    }
+
+    .start-screen {
+      background:
+        linear-gradient(90deg, rgba(7, 8, 8, 0.92), rgba(7, 8, 8, 0.46), rgba(7, 8, 8, 0.82)),
+        url("bg-neighbor.jpeg") center / cover no-repeat;
+    }
+
+    .start-screen::after,
+    .play-screen::after,
+    .story-screen::after,
+    .ending-screen::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      background:
+        linear-gradient(180deg, rgba(0, 0, 0, 0.28), transparent 28%, rgba(0, 0, 0, 0.52)),
+        repeating-linear-gradient(90deg, rgba(255, 255, 255, 0.025) 0 1px, transparent 1px 4px);
+      mix-blend-mode: soft-light;
+    }
+
+    .start-card {
+      position: relative;
+      z-index: 1;
+      width: min(720px, calc(100vw - 40px));
+      margin-right: min(34vw, 420px);
+      padding: 34px;
+      border-left: 1px solid rgba(244, 234, 210, 0.36);
+      background: linear-gradient(90deg, rgba(9, 10, 10, 0.76), rgba(9, 10, 10, 0.28));
+      box-shadow: 0 26px 80px var(--shadow);
+    }
+
+    .eyebrow {
+      margin: 0 0 10px;
+      color: var(--frost);
+      font-size: 14px;
+      letter-spacing: 0;
+    }
+
+    h1 {
+      margin: 0;
+      font-size: clamp(44px, 7vw, 88px);
+      line-height: 0.98;
+      letter-spacing: 0;
+      text-shadow: 0 8px 28px rgba(0, 0, 0, 0.65);
+    }
+
+    .start-copy {
+      max-width: 560px;
+      margin: 22px 0 26px;
+      color: #e0d3b4;
+      font-size: clamp(17px, 2vw, 22px);
+      line-height: 1.75;
+    }
+
+    .primary-button,
+    .ghost-button,
+    .small-button {
+      border: 1px solid rgba(244, 234, 210, 0.26);
+      border-radius: 6px;
+      color: var(--paper);
+      background: rgba(20, 22, 18, 0.84);
+      cursor: pointer;
+      transition: transform 160ms ease, border-color 160ms ease, background 160ms ease, opacity 160ms ease;
+    }
+
+    .primary-button {
+      min-width: 168px;
+      padding: 13px 22px;
+      background: linear-gradient(180deg, #a64225, #7c2e1d);
+      border-color: rgba(255, 224, 160, 0.42);
+      box-shadow: 0 12px 28px rgba(0, 0, 0, 0.42);
+      font-weight: 700;
+    }
+
+    .ghost-button,
+    .small-button {
+      padding: 10px 14px;
+    }
+
+    .small-button {
+      padding: 8px 11px;
+      font-size: 14px;
+    }
+
+    .primary-button:hover,
+    .ghost-button:hover,
+    .small-button:hover {
+      transform: translateY(-1px);
+      border-color: rgba(255, 226, 170, 0.66);
+    }
+
+    .primary-button:disabled,
+    .ghost-button:disabled,
+    .small-button:disabled {
+      cursor: not-allowed;
+      opacity: 0.42;
+      transform: none;
+    }
+
+    .intro-screen,
+    .truth-screen {
+      background: #000;
+    }
+
+    .intro-video,
+    .choice-video,
+    .truth-video,
+    .scene-video {
+      width: 100%;
+      height: 100%;
+      display: block;
+      background: #000;
+      object-fit: contain;
+    }
+
+    .choice-video {
+      object-fit: contain;
+    }
+
+    .choice-options {
+      position: absolute;
+      left: 50%;
+      bottom: clamp(28px, 7vh, 72px);
+      z-index: 6;
+      display: flex;
+      justify-content: center;
+      gap: 14px;
+      width: min(900px, calc(100vw - 36px));
+      transform: translateX(-50%);
+      pointer-events: auto;
+    }
+
+    .choice-options.is-hidden {
+      display: none;
+    }
+
+    .choice-button {
+      min-width: min(260px, 28vw);
+      padding: 14px 22px;
+      border: 1px solid rgba(244, 234, 210, 0.26);
+      border-radius: 8px;
+      background: rgba(14, 16, 14, 0.56);
+      color: var(--paper);
+      font-weight: 700;
+      cursor: pointer;
+      box-shadow: 0 14px 42px rgba(0, 0, 0, 0.36);
+      backdrop-filter: blur(8px);
+      transition: transform 160ms ease, border-color 160ms ease, background 160ms ease;
+    }
+
+    .choice-button:hover {
+      transform: translateY(-2px);
+      border-color: rgba(216, 169, 71, 0.72);
+      background: rgba(89, 69, 36, 0.62);
+    }
+
+    .skip-button {
+      position: absolute;
+      right: 24px;
+      top: 20px;
+      z-index: 3;
+    }
+
+    .skip-button.is-hidden {
+      display: none;
+    }
+
+    .story-screen {
+      align-items: stretch;
+      justify-content: stretch;
+      background:
+        linear-gradient(90deg, rgba(7, 8, 8, 0.96), rgba(7, 8, 8, 0.58), rgba(7, 8, 8, 0.9)),
+        url("bg-neighbor.jpeg") center / cover no-repeat;
+    }
+
+    .story-panel {
+      position: relative;
+      z-index: 1;
+      width: min(980px, calc(100vw - 36px));
+      margin: auto;
+      display: grid;
+      grid-template-columns: minmax(150px, 260px) 1fr;
+      gap: 24px;
+      align-items: end;
+    }
+
+    .hero-portrait,
+    .dialogue-portrait {
+      width: 100%;
+      aspect-ratio: 1 / 1;
+      object-fit: cover;
+      border: 1px solid rgba(244, 234, 210, 0.18);
+      background: rgba(255, 255, 255, 0.88);
+      box-shadow: 0 20px 52px rgba(0, 0, 0, 0.44);
+      mix-blend-mode: normal;
+    }
+
+    .story-text {
+      padding: 28px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: var(--panel);
+      box-shadow: 0 24px 70px var(--shadow);
+    }
+
+    .story-name,
+    .speaker {
+      margin: 0 0 9px;
+      color: var(--gold);
+      font-weight: 700;
+      font-size: 18px;
+    }
+
+    .story-line,
+    .dialogue-line {
+      margin: 0;
+      font-size: clamp(18px, 2.1vw, 26px);
+      line-height: 1.78;
+    }
+
+    .story-actions {
+      display: flex;
+      gap: 12px;
+      margin-top: 20px;
+      flex-wrap: wrap;
+    }
+
+    .play-screen {
+      flex-direction: column;
+      justify-content: flex-start;
+      background: #070808;
+    }
+
+    .topbar {
+      position: absolute;
+      left: 0;
+      top: 0;
+      z-index: 8;
+      width: 100%;
+      min-height: 0;
+      padding: clamp(16px, 2vw, 26px) clamp(18px, 2.2vw, 42px);
+      display: grid;
+      grid-template-columns: minmax(220px, 1fr) auto minmax(120px, 1fr);
+      gap: 16px;
+      align-items: start;
+      border-bottom: 0;
+      background: linear-gradient(180deg, rgba(0, 0, 0, 0.56), rgba(0, 0, 0, 0.22) 58%, transparent);
+      box-shadow: none;
+      pointer-events: none;
+    }
+
+    .center-hud {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      pointer-events: auto;
+    }
+
+    .chapter {
+      min-width: 0;
+      width: min(340px, 34vw);
+      padding: 10px 13px;
+      border: 1px solid rgba(244, 234, 210, 0.1);
+      border-radius: 7px;
+      background: rgba(7, 8, 8, 0.34);
+      backdrop-filter: blur(3px);
+    }
+
+    .chapter strong {
+      display: block;
+      color: #f5e8cb;
+      font-size: 18px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .chapter span {
+      display: block;
+      margin-top: 4px;
+      color: var(--muted);
+      font-size: 13px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .hud-right {
+      display: flex;
+      justify-content: flex-end;
+      gap: 10px;
+      align-items: center;
+      pointer-events: auto;
+    }
+
+    .collection-hud {
+      display: flex;
+      justify-content: center;
+      gap: 8px;
+      min-width: 132px;
+      pointer-events: auto;
+    }
+
+    .collection-chip {
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      min-width: 112px;
+      height: 42px;
+      padding: 6px 10px;
+      border: 1px solid rgba(244, 234, 210, 0.18);
+      border-radius: 7px;
+      background: rgba(25, 28, 24, 0.52);
+      color: var(--muted);
+      font-weight: 700;
+      box-shadow: inset 0 0 18px rgba(0, 0, 0, 0.22);
+      backdrop-filter: blur(4px);
+      transition: border-color 160ms ease, background 160ms ease, transform 160ms ease;
+    }
+
+    .collection-chip.is-active {
+      color: var(--paper);
+      border-color: rgba(216, 169, 71, 0.72);
+      background: rgba(89, 69, 36, 0.56);
+    }
+
+    .collection-chip.is-bumped {
+      transform: translateY(-2px) scale(1.04);
+      border-color: rgba(255, 226, 170, 0.9);
+    }
+
+    .item-icon {
+      width: 28px;
+      height: 28px;
+      flex: 0 0 28px;
+      display: grid;
+      place-items: center;
+    }
+
+    .item-icon svg {
+      width: 100%;
+      height: 100%;
+      display: block;
+      filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.5));
+    }
+
+    .timer {
+      position: relative;
+      width: 58px;
+      height: 58px;
+      flex: 0 0 58px;
+      display: grid;
+      place-items: center;
+      color: var(--paper);
+      font-weight: 800;
+      text-shadow: 0 2px 8px rgba(0, 0, 0, 0.62);
+    }
+
+    .timer svg {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      transform: rotate(-90deg);
+    }
+
+    .timer-bg {
+      fill: rgba(15, 17, 14, 0.84);
+      stroke: rgba(244, 234, 210, 0.18);
+      stroke-width: 4;
+    }
+
+    .timer-progress {
+      fill: transparent;
+      stroke: var(--gold);
+      stroke-width: 4;
+      stroke-linecap: round;
+      stroke-dasharray: 151;
+      stroke-dashoffset: 0;
+      transition: stroke-dashoffset 220ms ease, stroke 160ms ease;
+    }
+
+    .timer.is-warning .timer-progress {
+      stroke: #d24a38;
+    }
+
+    .timer.is-hit {
+      animation: timerHit 360ms ease;
+    }
+
+    .timer.is-hit .timer-bg {
+      fill: rgba(92, 17, 12, 0.9);
+      stroke: rgba(255, 105, 80, 0.7);
+    }
+
+    .timer.is-hit .timer-progress {
+      stroke: #ff4b36;
+    }
+
+    .timer-text {
+      position: relative;
+      z-index: 1;
+      font-size: 14px;
+      letter-spacing: 0;
+    }
+
+    .settings-button {
+      width: 46px;
+      height: 46px;
+      padding: 0;
+      display: grid;
+      place-items: center;
+      border: 1px solid rgba(244, 234, 210, 0.22);
+      border-radius: 50%;
+      background: rgba(15, 17, 14, 0.54);
+      color: var(--paper);
+      cursor: pointer;
+      backdrop-filter: blur(4px);
+      box-shadow: 0 10px 28px rgba(0, 0, 0, 0.24);
+      transition: transform 160ms ease, border-color 160ms ease, background 160ms ease;
+    }
+
+    .settings-button:hover {
+      transform: translateY(-1px);
+      border-color: rgba(216, 169, 71, 0.7);
+      background: rgba(45, 38, 25, 0.7);
+    }
+
+    .settings-button svg {
+      width: 23px;
+      height: 23px;
+      stroke: currentColor;
+    }
+
+    .settings-panel {
+      position: absolute;
+      right: clamp(18px, 2.2vw, 42px);
+      top: 76px;
+      z-index: 12;
+      width: 236px;
+      padding: 14px;
+      border: 1px solid rgba(244, 234, 210, 0.18);
+      border-radius: 8px;
+      background: rgba(12, 14, 12, 0.86);
+      color: var(--paper);
+      box-shadow: 0 18px 52px rgba(0, 0, 0, 0.45);
+      backdrop-filter: blur(8px);
+      pointer-events: auto;
+    }
+
+    .settings-panel.is-hidden {
+      display: none;
+    }
+
+    .settings-title {
+      margin: 0 0 12px;
+      color: var(--gold);
+      font-weight: 700;
+      font-size: 16px;
+    }
+
+    .setting-row {
+      display: grid;
+      gap: 8px;
+      margin-bottom: 14px;
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    .setting-label {
+      display: flex;
+      justify-content: space-between;
+      gap: 10px;
+    }
+
+    .volume-slider {
+      width: 100%;
+      accent-color: var(--gold);
+    }
+
+    .danger-button {
+      width: 100%;
+      padding: 10px 12px;
+      border: 1px solid rgba(255, 142, 110, 0.35);
+      border-radius: 6px;
+      background: rgba(119, 36, 24, 0.72);
+      color: var(--paper);
+      cursor: pointer;
+    }
+
+    .stage-wrap {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      flex: none;
+      min-height: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 0;
+      overflow: hidden;
+    }
+
+    .scene-frame {
+      position: relative;
+      width: 100vw;
+      height: calc(100vw * 9 / 16);
+      min-width: calc(100vh * 16 / 9);
+      min-height: 100vh;
+      max-height: none;
+      aspect-ratio: auto;
+      background: #000;
+      overflow: hidden;
+      box-shadow: none;
+      border: 0;
+    }
+
+    .scene-video {
+      position: absolute;
+      inset: 0;
+      object-fit: cover;
+    }
+
+    .scene-fallback {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      display: none;
+      object-fit: cover;
+      background: #0a0908;
+    }
+
+    .scene-fallback.is-visible { display: block; }
+
+    .scene-shade {
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      background:
+        linear-gradient(180deg, rgba(0, 0, 0, 0.05), transparent 44%, rgba(0, 0, 0, 0.28)),
+        radial-gradient(circle at 50% 50%, transparent 52%, rgba(0, 0, 0, 0.16) 100%);
+    }
+
+    .transition-overlay {
+      position: fixed;
+      inset: 0;
+      z-index: 18;
+      background: #050606;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 520ms ease;
+    }
+
+    .transition-overlay.is-visible {
+      opacity: 1;
+    }
+
+    .npc-hit {
+      position: absolute;
+      border: 0;
+      padding: 0;
+      background: transparent;
+      cursor: pointer;
+      z-index: 3;
+    }
+
+    .npc-hit:focus,
+    .hotspot:focus {
+      outline: none;
+    }
+
+    .npc-hit:focus-visible::before {
+      box-shadow: 0 0 0 8px rgba(216, 169, 71, 0.16), 0 0 0 13px rgba(244, 234, 210, 0.16);
+    }
+
+    .npc-hit::before {
+      content: "";
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      width: 22px;
+      height: 22px;
+      transform: translate(-50%, -50%);
+      border: 2px solid rgba(216, 169, 71, 0.72);
+      border-radius: 50%;
+      box-shadow: 0 0 0 8px rgba(216, 169, 71, 0.12);
+      animation: breathe 1800ms ease-in-out infinite;
+    }
+
+    .npc-hit.is-muted::before {
+      opacity: 0.18;
+      animation: none;
+    }
+
+    .npc-hit.is-muted {
+      pointer-events: none;
+    }
+
+    .hotspot {
+      position: absolute;
+      z-index: 2;
+      border: 0;
+      padding: 0;
+      background: transparent;
+      cursor: crosshair;
+      opacity: 0;
+    }
+
+    .hotspot::after {
+      content: "";
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      width: min(18px, 52%);
+      height: min(18px, 52%);
+      transform: translate(-50%, -50%) scale(0.72);
+      border-radius: 50%;
+      background: rgba(244, 234, 210, 0.72);
+      box-shadow: 0 0 22px rgba(244, 234, 210, 0.78);
+      opacity: 0;
+      transition: opacity 160ms ease, transform 160ms ease;
+    }
+
+    .hotspot:hover::after,
+    .hotspot.is-revealed::after {
+      opacity: 1;
+      transform: translate(-50%, -50%) scale(1);
+    }
+
+    .hotspot.is-found {
+      pointer-events: none;
+      opacity: 1;
+    }
+
+    .hotspot.is-found::after {
+      width: 34px;
+      height: 34px;
+      opacity: 1;
+      background: transparent;
+      border: 3px solid rgba(211, 45, 32, 0.92);
+      box-shadow: 0 0 0 5px rgba(211, 45, 32, 0.18), 0 0 24px rgba(211, 45, 32, 0.46);
+    }
+
+    .fx-layer {
+      position: fixed;
+      inset: 0;
+      z-index: 20;
+      pointer-events: none;
+      overflow: hidden;
+    }
+
+    .flying-item {
+      position: fixed;
+      left: 0;
+      top: 0;
+      width: 34px;
+      height: 34px;
+      display: grid;
+      place-items: center;
+      pointer-events: none;
+      transform: translate(-50%, -50%);
+      filter: drop-shadow(0 8px 12px rgba(0, 0, 0, 0.5));
+    }
+
+    .time-pop {
+      position: fixed;
+      z-index: 21;
+      color: #f7ead0;
+      font-weight: 900;
+      text-shadow: 0 2px 8px rgba(0, 0, 0, 0.72);
+      pointer-events: none;
+    }
+
+    .time-pop.is-bonus {
+      color: #d8f0b0;
+    }
+
+    .time-pop.is-penalty {
+      color: #ff806f;
+    }
+
+    .dialogue-panel {
+      position: absolute;
+      left: clamp(12px, 2vw, 26px);
+      right: clamp(12px, 2vw, 26px);
+      bottom: clamp(12px, 2vw, 26px);
+      z-index: 6;
+      min-height: 132px;
+      display: grid;
+      grid-template-columns: 106px 1fr auto;
+      gap: 16px;
+      align-items: center;
+      padding: 14px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: var(--panel-strong);
+      box-shadow: 0 20px 70px rgba(0, 0, 0, 0.56);
+    }
+
+    .dialogue-panel.is-hidden {
+      display: none;
+    }
+
+    .dialogue-portrait {
+      height: 106px;
+      border-radius: 6px;
+    }
+
+    .dialogue-copy {
+      min-width: 0;
+    }
+
+    .speaker {
+      font-size: 16px;
+    }
+
+    .dialogue-line {
+      font-size: clamp(16px, 1.7vw, 22px);
+      line-height: 1.62;
+    }
+
+    .dialogue-action {
+      min-width: 110px;
+      align-self: end;
+    }
+
+    .toast {
+      position: absolute;
+      left: 50%;
+      top: 94px;
+      z-index: 10;
+      max-width: min(560px, calc(100vw - 36px));
+      padding: 10px 14px;
+      border: 1px solid rgba(216, 169, 71, 0.36);
+      border-radius: 6px;
+      background: rgba(10, 11, 10, 0.92);
+      color: var(--paper);
+      transform: translate(-50%, -10px);
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 180ms ease, transform 180ms ease;
+      text-align: center;
+      box-shadow: 0 16px 42px rgba(0, 0, 0, 0.42);
+    }
+
+    .toast.is-visible {
+      opacity: 1;
+      transform: translate(-50%, 0);
+    }
+
+    .ending-screen {
+      background:
+        linear-gradient(90deg, rgba(7, 8, 8, 0.94), rgba(7, 8, 8, 0.5), rgba(7, 8, 8, 0.92)),
+        url("bg-church.jpeg") center / cover no-repeat;
+    }
+
+    .ending-panel {
+      position: relative;
+      z-index: 1;
+      width: min(880px, calc(100vw - 36px));
+      padding: 28px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: var(--panel-strong);
+      box-shadow: 0 28px 80px rgba(0, 0, 0, 0.56);
+    }
+
+    .ending-panel h2 {
+      margin: 0 0 14px;
+      font-size: clamp(30px, 4vw, 52px);
+      letter-spacing: 0;
+    }
+
+    .clue-list {
+      display: grid;
+      gap: 10px;
+      margin: 18px 0;
+      padding: 0;
+      list-style: none;
+    }
+
+    .clue-list li {
+      padding: 12px 14px;
+      border-left: 3px solid var(--gold);
+      background: rgba(244, 234, 210, 0.08);
+      line-height: 1.62;
+    }
+
+    .ending-line {
+      margin: 0 0 20px;
+      color: #e4d7ba;
+      font-size: 19px;
+      line-height: 1.8;
+    }
+
+    @keyframes breathe {
+      0%,
+      100% {
+        opacity: 0.72;
+        transform: translate(-50%, -50%) scale(1);
+      }
+      50% {
+        opacity: 1;
+        transform: translate(-50%, -50%) scale(1.18);
+      }
+    }
+
+    @keyframes timerHit {
+      0% { transform: translateX(0) scale(1); }
+      20% { transform: translateX(-5px) scale(1.1); }
+      40% { transform: translateX(5px) scale(1.12); }
+      60% { transform: translateX(-3px) scale(1.08); }
+      80% { transform: translateX(3px) scale(1.04); }
+      100% { transform: translateX(0) scale(1); }
+    }
+
+    @media (max-width: 760px) {
+      .app {
+        min-height: 100vh;
+      }
+
+      .start-card {
+        margin: 0;
+        padding: 24px;
+      }
+
+      .story-panel {
+        grid-template-columns: 1fr;
+        gap: 14px;
+      }
+
+      .hero-portrait {
+        width: min(180px, 42vw);
+        justify-self: start;
+      }
+
+      .story-text {
+        padding: 20px;
+      }
+
+      .topbar {
+        grid-template-columns: minmax(0, 1fr) auto auto;
+        gap: 8px;
+        min-height: auto;
+        padding: 12px;
+      }
+
+      .center-hud {
+        gap: 6px;
+      }
+
+      .collection-hud {
+        min-width: 0;
+        width: auto;
+        justify-content: center;
+        overflow-x: auto;
+        padding-bottom: 2px;
+      }
+
+      .collection-chip {
+        min-width: 100px;
+      }
+
+      .hud-right {
+        justify-content: flex-end;
+      }
+
+      .settings-panel {
+        right: 12px;
+        top: 64px;
+      }
+
+      .choice-options {
+        flex-direction: column;
+        align-items: center;
+      }
+
+      .choice-button {
+        width: min(420px, calc(100vw - 40px));
+        min-width: 0;
+      }
+
+      .scene-frame {
+        width: 100vw;
+        height: calc(100vw * 9 / 16);
+        min-width: calc(100vh * 16 / 9);
+        min-height: 100vh;
+        max-height: none;
+      }
+
+      .dialogue-panel {
+        grid-template-columns: 72px 1fr;
+        gap: 10px;
+      }
+
+      .dialogue-portrait {
+        height: 72px;
+      }
+
+      .dialogue-action {
+        grid-column: 1 / -1;
+        width: 100%;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="app" id="app">
+    <section class="screen start-screen is-active" id="startScreen" aria-label="游戏开始">
+      <div class="start-card">
+        <p class="eyebrow">第一章：土豆丢失</p>
+        <h1>偷土豆的人</h1>
+        <p class="start-copy">筐空了，炉火还在摇晃。这个寒夜里，艾米必须把一家人最后的口粮找回来。</p>
+        <button class="primary-button" id="startButton" type="button">开始</button>
+      </div>
+    </section>
+
+    <section class="screen intro-screen" id="introScreen" aria-label="视频选项玩法">
+      <video class="choice-video" id="introVideo" playsinline preload="metadata"></video>
+      <button class="ghost-button skip-button is-hidden" id="skipOpeningButton" type="button">跳过</button>
+      <div class="choice-options is-hidden" id="choiceOptions" aria-label="视频选项"></div>
+    </section>
+
+    <section class="screen story-screen" id="storyScreen" aria-label="剧情衔接">
+      <div class="story-panel">
+        <img class="hero-portrait" id="heroPortrait" alt="艾米">
+        <div class="story-text">
+          <p class="story-name">艾米</p>
+          <p class="story-line" id="storyLine">魔鬼不会偷土豆，母亲。那些混蛋资本家夺走了我们的白天，我绝不允许小偷再夺走我们活过今晚的权利。那筐土豆足有三十磅重，无论那个贼是谁，他走不远。我们会找到它。</p>
+          <div class="story-actions">
+            <button class="primary-button" id="storyNextButton" type="button">继续</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="screen play-screen" id="playScreen" aria-label="寻物调查">
+      <header class="topbar">
+        <div class="chapter">
+          <strong id="sceneTitle">邻居家院子</strong>
+          <span id="sceneObjective">问问邻居，寻找土豆的线索。</span>
+        </div>
+        <div class="center-hud">
+          <div class="collection-hud" id="collectionHud" aria-label="收集数量"></div>
+          <div class="timer" id="timer" aria-label="倒计时">
+            <svg viewBox="0 0 58 58" aria-hidden="true">
+              <circle class="timer-bg" cx="29" cy="29" r="24"></circle>
+              <circle class="timer-progress" id="timerProgress" cx="29" cy="29" r="24"></circle>
+            </svg>
+            <span class="timer-text" id="timerText">1:00</span>
+          </div>
+        </div>
+        <div class="hud-right">
+          <button class="settings-button" id="settingsButton" type="button" aria-label="设置">
+            <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M12 15.5a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7Z"></path>
+              <path d="M19.4 15a1.8 1.8 0 0 0 .36 1.98l.04.04a2.1 2.1 0 0 1-2.97 2.97l-.04-.04a1.8 1.8 0 0 0-1.98-.36 1.8 1.8 0 0 0-1.08 1.65V21.3a2.1 2.1 0 0 1-4.2 0v-.06a1.8 1.8 0 0 0-1.08-1.65 1.8 1.8 0 0 0-1.98.36l-.04.04a2.1 2.1 0 1 1-2.97-2.97l.04-.04A1.8 1.8 0 0 0 4.6 15a1.8 1.8 0 0 0-1.65-1.08H2.9a2.1 2.1 0 0 1 0-4.2h.06A1.8 1.8 0 0 0 4.6 8a1.8 1.8 0 0 0-.36-1.98l-.04-.04A2.1 2.1 0 1 1 7.17 3l.04.04A1.8 1.8 0 0 0 9.2 3.4a1.8 1.8 0 0 0 1.08-1.65V1.7a2.1 2.1 0 0 1 4.2 0v.06A1.8 1.8 0 0 0 15.56 3.4a1.8 1.8 0 0 0 1.98-.36l.04-.04a2.1 2.1 0 1 1 2.97 2.97l-.04.04A1.8 1.8 0 0 0 19.4 8a1.8 1.8 0 0 0 1.65 1.08h.06a2.1 2.1 0 0 1 0 4.2h-.06A1.8 1.8 0 0 0 19.4 15Z"></path>
+            </svg>
+          </button>
+        </div>
+        <div class="settings-panel is-hidden" id="settingsPanel" aria-label="设置面板">
+          <p class="settings-title">设置</p>
+          <label class="setting-row" for="volumeSlider">
+            <span class="setting-label"><span>音量</span><span id="volumeValue">70%</span></span>
+            <input class="volume-slider" id="volumeSlider" type="range" min="0" max="100" value="70">
+          </label>
+          <button class="danger-button" id="endGameButton" type="button">结束游戏</button>
+        </div>
+      </header>
+
+      <div class="stage-wrap">
+        <div class="scene-frame" id="sceneFrame">
+          <video class="scene-video" id="sceneVideo" autoplay muted loop playsinline></video>
+          <img class="scene-fallback" id="sceneFallback" alt="">
+          <div class="scene-shade"></div>
+          <button class="npc-hit" id="npcButton" type="button" aria-label="人物"></button>
+          <div id="hotspotLayer"></div>
+          <div class="dialogue-panel is-hidden" id="dialoguePanel">
+            <img class="dialogue-portrait" id="dialoguePortrait" alt="">
+            <div class="dialogue-copy">
+              <p class="speaker" id="speaker">邻居老妇人</p>
+              <p class="dialogue-line" id="dialogueLine"></p>
+            </div>
+            <button class="primary-button dialogue-action" id="dialogueButton" type="button">继续</button>
+          </div>
+        </div>
+      </div>
+      <div class="toast" id="toast" role="status"></div>
+    </section>
+
+    <section class="screen truth-screen" id="truthScreen" aria-label="结尾真相视频">
+      <video class="truth-video" id="truthVideo" playsinline preload="metadata"></video>
+      <button class="ghost-button skip-button" id="skipTruthButton" type="button">跳过</button>
+    </section>
+
+    <section class="screen ending-screen" id="endingScreen" aria-label="阶段完成">
+      <div class="ending-panel">
+        <p class="eyebrow">真相已揭开</p>
+        <h2>她偷来了一个春天</h2>
+        <ul class="clue-list" id="clueList"></ul>
+        <p class="ending-line">三个说法拼在一起：有人关心明年的种子，有人拿旧外套换钱，又有人背着一包东西离开村子。艾米追到了真相，也追到了这个冬天里最微弱的希望。</p>
+        <button class="primary-button" id="restartButton" type="button">重新调查</button>
+      </div>
+    </section>
+    <audio id="bgMusic" preload="auto" loop></audio>
+    <div class="transition-overlay" id="transitionOverlay" aria-hidden="true"></div>
+    <div class="fx-layer" id="fxLayer" aria-hidden="true"></div>
+  </main>
+
+  <script>
+    const screens = {
+      start: document.getElementById("startScreen"),
+      intro: document.getElementById("introScreen"),
+      story: document.getElementById("storyScreen"),
+      play: document.getElementById("playScreen"),
+      truth: document.getElementById("truthScreen"),
+      ending: document.getElementById("endingScreen")
+    };
+
+    const introVideo = document.getElementById("introVideo");
+    const truthVideo = document.getElementById("truthVideo");
+    const sceneVideo = document.getElementById("sceneVideo");
+    const heroPortrait = document.getElementById("heroPortrait");
+    const storyLine = document.getElementById("storyLine");
+    const storyNextButton = document.getElementById("storyNextButton");
+    const sceneTitle = document.getElementById("sceneTitle");
+    const sceneObjective = document.getElementById("sceneObjective");
+    const collectionHud = document.getElementById("collectionHud");
+    const timer = document.getElementById("timer");
+    const timerProgress = document.getElementById("timerProgress");
+    const timerText = document.getElementById("timerText");
+    const sceneFrame = document.getElementById("sceneFrame");
+    const npcButton = document.getElementById("npcButton");
+    const hotspotLayer = document.getElementById("hotspotLayer");
+    const dialoguePanel = document.getElementById("dialoguePanel");
+    const dialoguePortrait = document.getElementById("dialoguePortrait");
+    const speaker = document.getElementById("speaker");
+    const dialogueLine = document.getElementById("dialogueLine");
+    const dialogueButton = document.getElementById("dialogueButton");
+    const toast = document.getElementById("toast");
+    const clueList = document.getElementById("clueList");
+    const fxLayer = document.getElementById("fxLayer");
+    const sceneFallback = document.getElementById("sceneFallback");
+    const bgMusic = document.getElementById("bgMusic");
+    const transitionOverlay = document.getElementById("transitionOverlay");
+    const settingsButton = document.getElementById("settingsButton");
+    const settingsPanel = document.getElementById("settingsPanel");
+    const volumeSlider = document.getElementById("volumeSlider");
+    const volumeValue = document.getElementById("volumeValue");
+    const endGameButton = document.getElementById("endGameButton");
+    const choiceOptions = document.getElementById("choiceOptions");
+    const skipOpeningButton = document.getElementById("skipOpeningButton");
+
+    // 配置区：后续进配置时优先改这里，以及下方 scenes 场景数据。
+    const GAME_CONFIG = {
+      assets: {
+        useEmbedded: false,
+        fallbackToFiles: true
+      },
+      media: {
+        heroPortrait: "hero-amy.jpeg",
+        truthVideo: "truth-ending.mp4"
+      },
+      openingFlow: {
+        first: {
+          video: "intro-family.mp4",
+          options: [
+            { label: "告知家人今天发生的事情", action: "playStory" }
+          ]
+        },
+        story: {
+          video: "story-options.mp4",
+          options: [
+            { label: "祖父反应", video: "reaction-grandfather.mp4" },
+            { label: "母亲反应", video: "reaction-mother.mp4" },
+            { label: "女儿反应", video: "reaction-daughter.mp4" }
+          ]
+        },
+        final: "opening-final.mp4"
+      },
+      timer: {
+        startSeconds: 60,
+        ringLength: 151,
+        comboNeed: 3,
+        comboBonusSeconds: 5,
+        missPenaltySeconds: 2
+      },
+      audio: {
+        music: "search-music.mp3",
+        defaultVolume: 70,
+        musicVolume: 0.14,
+        sfxVolume: 0.42,
+        musicFadeMs: 1200
+      },
+      transition: {
+        fadeMs: 520,
+        holdMs: 120
+      },
+      hotspotPadding: 0.008,
+      storyBeats: [
+        "魔鬼不会偷土豆，母亲。那些混蛋资本家夺走了我们的白天，我绝不允许小偷再夺走我们活过今晚的权利。那筐土豆足有三十磅重，无论那个贼是谁，他走不远。我们会找到它。",
+        "我想，去室外问问村里的人一定会有线索。"
+      ]
+    };
+
+    const TIMER_START = GAME_CONFIG.timer.startSeconds;
+    const TIMER_RING = GAME_CONFIG.timer.ringLength;
+    const storyBeats = GAME_CONFIG.storyBeats;
+
+    const embeddedAssetUrls = new Map();
+
+    function resolveAsset(source) {
+      if (!source || /^(data:|blob:|https?:|file:)/.test(source)) {
+        return source;
+      }
+      if (!GAME_CONFIG.assets.useEmbedded) {
+        return source;
+      }
+      if (embeddedAssetUrls.has(source)) {
+        return embeddedAssetUrls.get(source);
+      }
+      const assetNode = Array.from(document.querySelectorAll("script[data-asset]"))
+        .find((node) => node.dataset.asset === source);
+      if (!assetNode) {
+        return GAME_CONFIG.assets.fallbackToFiles ? source : "";
+      }
+      const base64 = assetNode.textContent.replace(/\s+/g, "");
+      const mime = assetNode.dataset.mime || "application/octet-stream";
+      const bytes = [];
+      const chunkSize = 32768;
+      for (let index = 0; index < base64.length; index += chunkSize) {
+        const chunk = atob(base64.slice(index, index + chunkSize));
+        const buffer = new Uint8Array(chunk.length);
+        for (let i = 0; i < chunk.length; i += 1) {
+          buffer[i] = chunk.charCodeAt(i);
+        }
+        bytes.push(buffer);
+      }
+      const url = URL.createObjectURL(new Blob(bytes, { type: mime }));
+      embeddedAssetUrls.set(source, url);
+      return url;
+    }
+
+    function setAssetSource(element, source) {
+      if (element.dataset.assetSource === source) {
+        return;
+      }
+      element.src = resolveAsset(source);
+      element.dataset.assetSource = source;
+    }
+
+    function ensureMusicSource() {
+      setAssetSource(bgMusic, GAME_CONFIG.audio.music);
+    }
+
+    function initializeConfiguredAssets() {
+      setAssetSource(heroPortrait, GAME_CONFIG.media.heroPortrait);
+      ensureMusicSource();
+    }
+
+    function getItemIcon(type) {
+      const icons = {
+        hay: `
+          <svg viewBox="0 0 64 64" aria-hidden="true">
+            <path d="M15 52C23 31 30 16 38 8" fill="none" stroke="#e5c05c" stroke-width="7" stroke-linecap="round"/>
+            <path d="M25 54C30 34 38 19 48 11" fill="none" stroke="#b9822e" stroke-width="6" stroke-linecap="round"/>
+            <path d="M36 55C38 36 45 25 55 17" fill="none" stroke="#f0d178" stroke-width="5" stroke-linecap="round"/>
+            <path d="M12 55h39" stroke="#6e4424" stroke-width="7" stroke-linecap="round"/>
+          </svg>`,
+        spool: `
+          <svg viewBox="0 0 64 64" aria-hidden="true">
+            <ellipse cx="32" cy="14" rx="19" ry="8" fill="#d8d0bf"/>
+            <path d="M13 14v36c0 5 8 9 19 9s19-4 19-9V14" fill="#5a4a3d"/>
+            <path d="M17 23c10 6 22 6 30 0M17 32c11 5 22 5 30 0M17 42c10 6 22 6 30 0" fill="none" stroke="#bfc4bf" stroke-width="3" opacity=".72"/>
+            <ellipse cx="32" cy="50" rx="19" ry="8" fill="#2e2924"/>
+            <ellipse cx="32" cy="14" rx="9" ry="4" fill="#2c2925"/>
+          </svg>`,
+        flower: `
+          <svg viewBox="0 0 64 64" aria-hidden="true">
+            <path d="M32 31C20 18 21 7 32 9c11-2 12 9 0 22Z" fill="#e8e1c7"/>
+            <path d="M34 33c13-10 24-7 21 4 1 12-11 12-21-4Z" fill="#f2eee2"/>
+            <path d="M30 34C17 43 7 39 11 29c0-11 12-10 19 5Z" fill="#cfc8ad"/>
+            <path d="M32 35c2 16-6 24-14 16-10-6-3-16 14-16Z" fill="#efe6cc"/>
+            <path d="M34 35c17 3 21 13 10 18-8 8-15-2-10-18Z" fill="#ddd5bb"/>
+            <circle cx="32" cy="33" r="7" fill="#8a5a2a"/>
+          </svg>`
+      };
+      return icons[type] || icons.hay;
+    }
+
+    // 场景配置区：改场景视频、人物、对白、线索、NPC 点击区和寻物点位都在这里。
+    const scenes = [
+      {
+        title: "邻居家院子",
+        shortName: "邻居家",
+        video: "scene-neighbor.mp4",
+        fallback: "bg-neighbor.jpeg",
+        portrait: "portrait-neighbor.jpeg",
+        speaker: "邻居老妇人",
+        itemName: "干草",
+        itemType: "hay",
+        objectiveIdle: "问问邻居，寻找土豆的线索。",
+        objectiveFind: "帮老妇人找齐 10 把干草。",
+        npc: { x: 0.54, y: 0.57, w: 0.13, h: 0.32 },
+        dialogues: [
+          "艾米？这大雪天的，你怎么不在屋里待着，出来乱跑什么？",
+          "找你们家过冬的土豆？唉……这吃人的世道。不过，我貌似有一些线索能给你，但你得先帮我个忙。",
+          "我这可怜的小羊羔快冻饿死了，你要是能在四周雪地里帮我拔 10 把干草过来，我就把我知道的都告诉你。"
+        ],
+        clue: "好孩子，谢谢你，它总算能活过今晚了。对了，关于那件事……有人最近打听过明年种子的价钱，瞧我这记性，忘记是谁问的了。",
+        hotspots: [
+          { x: 0.3714, y: 0.1518, w: 0.0638, h: 0.0775 },
+          { x: 0.6101, y: 0.3324, w: 0.0505, h: 0.1127 },
+          { x: 0.7613, y: 0.3395, w: 0.0593, h: 0.1597 },
+          { x: 0.4850, y: 0.4027, w: 0.0684, h: 0.1010 },
+          { x: 0.8435, y: 0.5148, w: 0.0676, h: 0.1355 },
+          { x: 0.0800, y: 0.6406, w: 0.0731, h: 0.1153 },
+          { x: 0.3879, y: 0.6820, w: 0.0469, h: 0.1007 },
+          { x: 0.2209, y: 0.7038, w: 0.0963, h: 0.1913 },
+          { x: 0.5457, y: 0.7572, w: 0.0869, h: 0.0893 },
+          { x: 0.4376, y: 0.8495, w: 0.1271, h: 0.1443 }
+        ]
+      },
+      {
+        title: "小作坊",
+        shortName: "小作坊",
+        video: "scene-workshop.mp4",
+        fallback: "bg-neighbor.jpeg",
+        portrait: "portrait-weaver.jpeg",
+        speaker: "织布工",
+        itemName: "线轴",
+        itemType: "spool",
+        objectiveIdle: "听听织布工前天看见了什么。",
+        objectiveFind: "帮织布工找齐 10 个线轴。",
+        npc: { x: 0.14, y: 0.22, w: 0.25, h: 0.47 },
+        dialogues: [
+          "咳咳……快把门关严实，艾米！风把我的手都冻僵了，梭子都要拿不住了。",
+          "偷东西的贼？我整天都在织布，什么也没看见。不过……我貌似有一些线索能给你，前提是你得先帮我解决个大麻烦。",
+          "监工明天就要来收货了，但我这里还差 10 个线轴。帮我把它们找齐，我就告诉你我前天碰见了什么事。"
+        ],
+        clue: "太感谢了，这下我的口粮保住了。作为交换告诉你吧……有人前天拿着一件旧外套来当了，换了些钱。那衣服看着很眼熟，你自己当心点。",
+        hotspots: [
+          { x: 0.3254, y: 0.0340, w: 0.1161, h: 0.0967 },
+          { x: 0.7341, y: 0.2312, w: 0.0816, h: 0.1898 },
+          { x: 0.9165, y: 0.2386, w: 0.0539, h: 0.1552 },
+          { x: 0.4548, y: 0.4360, w: 0.0642, h: 0.1387 },
+          { x: 0.7035, y: 0.4616, w: 0.0489, h: 0.1662 },
+          { x: 0.9337, y: 0.4996, w: 0.0650, h: 0.0803 },
+          { x: 0.0188, y: 0.6060, w: 0.0560, h: 0.1075 },
+          { x: 0.5496, y: 0.6369, w: 0.0672, h: 0.1112 },
+          { x: 0.3401, y: 0.7478, w: 0.0865, h: 0.0896 },
+          { x: 0.0035, y: 0.7867, w: 0.0539, h: 0.1296 }
+        ]
+      },
+      {
+        title: "教堂外",
+        shortName: "教堂外",
+        video: "scene-church.mp4",
+        fallback: "bg-church.jpeg",
+        portrait: "portrait-church.jpeg",
+        speaker: "中年女性",
+        itemName: "冻花",
+        itemType: "flower",
+        objectiveIdle: "墓碑旁的人也许见过什么。",
+        objectiveFind: "帮她找齐 10 朵冻花。",
+        npc: { x: 0.52, y: 0.57, w: 0.10, h: 0.32 },
+        dialogues: [
+          "愿主保佑你，可怜的孩子。这漫天的风雪，简直就像魔鬼的叹息。",
+          "你在找丢失的口粮？在这片矿区，饥饿能把人逼疯。我貌似有一些线索能给你，但在那之前，你能先满足一个母亲的祈愿吗？",
+          "明天……是我那死在矿井下的小儿子的忌日。如果能在附近帮我找到 10 朵鲜花，哪怕是被冻僵的，我也感激不尽。"
+        ],
+        clue: "愿主保佑你善良的心。关于你的土豆……今天早些时候，我看到一个人拿着一包东西出村了。在这么冷的天往外走，实在是很反常。",
+        hotspots: [
+          { x: 0.9146, y: 0.2190, w: 0.0391, h: 0.0818 },
+          { x: 0.3098, y: 0.2792, w: 0.0596, h: 0.1101 },
+          { x: 0.9053, y: 0.3278, w: 0.0438, h: 0.0818 },
+          { x: 0.5870, y: 0.6087, w: 0.0382, h: 0.0701 },
+          { x: 0.1558, y: 0.6689, w: 0.0549, h: 0.0935 },
+          { x: 0.9098, y: 0.6706, w: 0.0325, h: 0.0802 },
+          { x: 0.8146, y: 0.7784, w: 0.0449, h: 0.0701 },
+          { x: 0.0438, y: 0.8482, w: 0.0709, h: 0.0867 },
+          { x: 0.3836, y: 0.8814, w: 0.0671, h: 0.1004 },
+          { x: 0.6123, y: 0.8876, w: 0.0325, h: 0.0567 }
+        ]
+      }
+    ];
+
+    const state = {
+      storyIndex: 0,
+      sceneIndex: 0,
+      dialogueIndex: 0,
+      mode: "dialogue",
+      found: [],
+      foundByScene: scenes.map(() => []),
+      completedScenes: new Set(),
+      clues: [],
+      timeRemaining: TIMER_START,
+      timerId: null,
+      combo: 0,
+      openingPhase: "",
+      masterVolume: GAME_CONFIG.audio.defaultVolume / 100,
+      audioContext: null,
+      musicFadeId: null,
+      transitioning: false
+    };
+
+    function showScreen(name) {
+      Object.values(screens).forEach((screen) => screen.classList.remove("is-active"));
+      screens[name].classList.add("is-active");
+    }
+
+    function showToast(message) {
+      toast.textContent = message;
+      toast.classList.add("is-visible");
+      clearTimeout(showToast.timer);
+      showToast.timer = setTimeout(() => toast.classList.remove("is-visible"), 1800);
+    }
+
+    function initAudio() {
+      if (!state.audioContext) {
+        const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+        if (AudioContextClass) {
+          state.audioContext = new AudioContextClass();
+        }
+      }
+      if (state.audioContext && state.audioContext.state === "suspended") {
+        state.audioContext.resume();
+      }
+    }
+
+    function updateAudioVolume() {
+      const percent = Number(volumeSlider.value);
+      state.masterVolume = percent / 100;
+      volumeValue.textContent = `${percent}%`;
+      bgMusic.volume = GAME_CONFIG.audio.musicVolume * state.masterVolume;
+    }
+
+    function playTone({ frequency, duration, type = "sine", volume = 1, slideTo = null }) {
+      initAudio();
+      const ctx = state.audioContext;
+      if (!ctx) {
+        return;
+      }
+      const now = ctx.currentTime;
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.type = type;
+      osc.frequency.setValueAtTime(frequency, now);
+      if (slideTo) {
+        osc.frequency.exponentialRampToValueAtTime(slideTo, now + duration);
+      }
+      gain.gain.setValueAtTime(0.0001, now);
+      gain.gain.exponentialRampToValueAtTime(Math.max(0.0001, GAME_CONFIG.audio.sfxVolume * state.masterVolume * volume), now + 0.015);
+      gain.gain.exponentialRampToValueAtTime(0.0001, now + duration);
+      osc.connect(gain).connect(ctx.destination);
+      osc.start(now);
+      osc.stop(now + duration + 0.02);
+    }
+
+    function playSfx(type) {
+      if (type === "collect") {
+        playTone({ frequency: 660, duration: 0.09, type: "triangle", volume: 0.55, slideTo: 990 });
+        setTimeout(() => playTone({ frequency: 990, duration: 0.08, type: "sine", volume: 0.36, slideTo: 1320 }), 45);
+        return;
+      }
+      if (type === "miss") {
+        playTone({ frequency: 180, duration: 0.16, type: "sawtooth", volume: 0.45, slideTo: 90 });
+        return;
+      }
+      if (type === "dialogue") {
+        playTone({ frequency: 360, duration: 0.055, type: "square", volume: 0.18, slideTo: 460 });
+      }
+    }
+
+    function fadeMusicTo(targetVolume, duration = GAME_CONFIG.audio.musicFadeMs, pauseWhenSilent = false) {
+      cancelAnimationFrame(state.musicFadeId);
+      const startVolume = bgMusic.volume;
+      const startTime = performance.now();
+      const tick = (time) => {
+        const progress = Math.min(1, (time - startTime) / duration);
+        const eased = progress < 0.5 ? 2 * progress * progress : 1 - Math.pow(-2 * progress + 2, 2) / 2;
+        bgMusic.volume = startVolume + (targetVolume - startVolume) * eased;
+        if (progress < 1) {
+          state.musicFadeId = requestAnimationFrame(tick);
+        } else if (pauseWhenSilent) {
+          bgMusic.pause();
+          bgMusic.volume = 0;
+        }
+      };
+      state.musicFadeId = requestAnimationFrame(tick);
+    }
+
+    function startSceneMusic() {
+      initAudio();
+      ensureMusicSource();
+      cancelAnimationFrame(state.musicFadeId);
+      const targetVolume = GAME_CONFIG.audio.musicVolume * state.masterVolume;
+      if (bgMusic.paused) {
+        bgMusic.volume = 0;
+        bgMusic.currentTime = 0;
+        bgMusic.play().then(() => fadeMusicTo(targetVolume)).catch(() => {});
+      } else {
+        fadeMusicTo(targetVolume);
+      }
+    }
+
+    function stopSceneMusic() {
+      fadeMusicTo(0, GAME_CONFIG.audio.musicFadeMs, true);
+    }
+
+    function pulseTimerHit() {
+      timer.classList.remove("is-hit");
+      void timer.offsetWidth;
+      timer.classList.add("is-hit");
+      setTimeout(() => timer.classList.remove("is-hit"), 380);
+    }
+
+    function wait(ms) {
+      return new Promise((resolve) => setTimeout(resolve, ms));
+    }
+
+    async function transitionToScene(index) {
+      if (state.transitioning) {
+        return;
+      }
+      state.transitioning = true;
+      transitionOverlay.classList.add("is-visible");
+      await wait(GAME_CONFIG.transition.fadeMs);
+      loadScene(index);
+      await wait(GAME_CONFIG.transition.holdMs);
+      transitionOverlay.classList.remove("is-visible");
+      await wait(GAME_CONFIG.transition.fadeMs);
+      state.transitioning = false;
+    }
+
+    function renderCollectionHud() {
+      collectionHud.innerHTML = "";
+      const scene = scenes[state.sceneIndex];
+      const chip = document.createElement("div");
+      chip.className = "collection-chip is-active";
+      chip.dataset.scene = String(state.sceneIndex);
+      chip.innerHTML = `
+        <span class="item-icon">${getItemIcon(scene.itemType)}</span>
+        <span>${state.foundByScene[state.sceneIndex].length} / ${scene.hotspots.length}</span>
+      `;
+      collectionHud.appendChild(chip);
+    }
+
+    function pulseCollectionChip(index) {
+      const chip = collectionHud.querySelector(`[data-scene="${index}"]`);
+      if (!chip) {
+        return;
+      }
+      chip.classList.add("is-bumped");
+      setTimeout(() => chip.classList.remove("is-bumped"), 260);
+    }
+
+    function getActiveCollectionIconRect() {
+      const chip = collectionHud.querySelector(`[data-scene="${state.sceneIndex}"] .item-icon`);
+      return chip ? chip.getBoundingClientRect() : collectionHud.getBoundingClientRect();
+    }
+
+    function updateTimer() {
+      const safeTime = Math.max(0, state.timeRemaining);
+      const minutes = Math.floor(safeTime / 60);
+      const seconds = safeTime % 60;
+      timerText.textContent = `${minutes}:${String(seconds).padStart(2, "0")}`;
+      const progress = Math.max(0, Math.min(1, safeTime / TIMER_START));
+      timerProgress.style.strokeDashoffset = String(TIMER_RING * (1 - progress));
+      timer.classList.toggle("is-warning", safeTime <= 10 && state.mode === "search");
+    }
+
+    function clearGameTimer() {
+      if (state.timerId) {
+        clearInterval(state.timerId);
+        state.timerId = null;
+      }
+    }
+
+    function resetGameTimer() {
+      clearGameTimer();
+      state.timeRemaining = TIMER_START;
+      state.combo = 0;
+      updateTimer();
+    }
+
+    function startGameTimer() {
+      clearGameTimer();
+      state.timeRemaining = TIMER_START;
+      state.combo = 0;
+      updateTimer();
+      state.timerId = setInterval(() => {
+        if (state.mode !== "search") {
+          return;
+        }
+        state.timeRemaining -= 1;
+        updateTimer();
+        if (state.timeRemaining <= 0) {
+          failScene();
+        }
+      }, 1000);
+    }
+
+    function changeTime(delta) {
+      state.timeRemaining = Math.max(0, state.timeRemaining + delta);
+      if (delta < 0) {
+        pulseTimerHit();
+      }
+      updateTimer();
+      showTimePop(delta);
+      if (state.timeRemaining <= 0) {
+        failScene();
+      }
+    }
+
+    function showTimePop(delta) {
+      const rect = timer.getBoundingClientRect();
+      const pop = document.createElement("div");
+      pop.className = `time-pop ${delta > 0 ? "is-bonus" : "is-penalty"}`;
+      pop.textContent = `${delta > 0 ? "+" : ""}${delta}s`;
+      pop.style.left = `${rect.left + rect.width / 2}px`;
+      pop.style.top = `${rect.top + rect.height / 2}px`;
+      fxLayer.appendChild(pop);
+      pop.animate([
+        { opacity: 0, transform: "translate(-50%, -10%) scale(.9)" },
+        { opacity: 1, transform: "translate(-50%, -70%) scale(1)" },
+        { opacity: 0, transform: "translate(-50%, -150%) scale(.96)" }
+      ], { duration: 820, easing: "ease-out" }).addEventListener("finish", () => pop.remove());
+    }
+
+    function animateCollectToHud(scene, sourceNode, event) {
+      const sourceRect = sourceNode.getBoundingClientRect();
+      const targetRect = getActiveCollectionIconRect();
+      const startX = event ? event.clientX : sourceRect.left + sourceRect.width / 2;
+      const startY = event ? event.clientY : sourceRect.top + sourceRect.height / 2;
+      const endX = targetRect.left + targetRect.width / 2;
+      const endY = targetRect.top + targetRect.height / 2;
+      const item = document.createElement("div");
+      item.className = "flying-item";
+      item.innerHTML = `<span class="item-icon">${getItemIcon(scene.itemType)}</span>`;
+      item.style.left = `${startX}px`;
+      item.style.top = `${startY}px`;
+      fxLayer.appendChild(item);
+      const dx = endX - startX;
+      const dy = endY - startY;
+      const midDx = dx * 0.36;
+      const midY = Math.min(startY, endY) - 90;
+      item.animate([
+        { transform: "translate(-50%, -50%) scale(.72)", opacity: 0 },
+        { transform: `translate(-50%, -50%) translate(${midDx}px, ${midY - startY}px) scale(1.08)`, opacity: 1, offset: 0.48 },
+        { transform: `translate(-50%, -50%) translate(${dx}px, ${dy}px) scale(.45)`, opacity: 0.1 }
+      ], { duration: 680, easing: "cubic-bezier(.22,.78,.22,1)" }).addEventListener("finish", () => {
+        item.remove();
+        pulseCollectionChip(state.sceneIndex);
+      });
+    }
+
+    function setChoiceOptions(options) {
+      choiceOptions.innerHTML = "";
+      skipOpeningButton.classList.add("is-hidden");
+      options.forEach((option) => {
+        const button = document.createElement("button");
+        button.className = "choice-button";
+        button.type = "button";
+        button.textContent = option.label;
+        button.addEventListener("click", () => {
+          playSfx("dialogue");
+          choiceOptions.classList.add("is-hidden");
+          if (option.action === "playStory") {
+            playOpeningVideo(GAME_CONFIG.openingFlow.story.video, "story");
+            return;
+          }
+          if (option.video) {
+            playOpeningVideo(option.video, "reaction");
+          }
+        });
+        choiceOptions.appendChild(button);
+      });
+      choiceOptions.classList.remove("is-hidden");
+    }
+
+    function playOpeningVideo(src, phase) {
+      state.openingPhase = phase;
+      choiceOptions.classList.add("is-hidden");
+      skipOpeningButton.classList.remove("is-hidden");
+      introVideo.removeAttribute("controls");
+      setAssetSource(introVideo, src);
+      introVideo.currentTime = 0;
+      const playPromise = introVideo.play();
+      if (playPromise) {
+        playPromise.catch(() => {
+          showToast("视频需要手动播放。");
+          introVideo.setAttribute("controls", "controls");
+        });
+      }
+    }
+
+    function startIntro() {
+      initAudio();
+      showScreen("intro");
+      playOpeningVideo(GAME_CONFIG.openingFlow.first.video, "first");
+    }
+
+    async function enterPlayFromOpening() {
+      introVideo.pause();
+      choiceOptions.classList.add("is-hidden");
+      skipOpeningButton.classList.add("is-hidden");
+      transitionOverlay.classList.add("is-visible");
+      await wait(GAME_CONFIG.transition.fadeMs);
+      loadScene(0);
+      showScreen("play");
+      await wait(GAME_CONFIG.transition.holdMs);
+      transitionOverlay.classList.remove("is-visible");
+    }
+
+    function handleOpeningVideoEnded() {
+      skipOpeningButton.classList.add("is-hidden");
+      if (state.openingPhase === "first") {
+        setChoiceOptions(GAME_CONFIG.openingFlow.first.options);
+        return;
+      }
+      if (state.openingPhase === "story") {
+        setChoiceOptions(GAME_CONFIG.openingFlow.story.options);
+        return;
+      }
+      if (state.openingPhase === "reaction") {
+        playOpeningVideo(GAME_CONFIG.openingFlow.final, "final");
+        return;
+      }
+      if (state.openingPhase === "final") {
+        enterPlayFromOpening();
+      }
+    }
+
+    function skipOpeningVideoSegment() {
+      if (!screens.intro.classList.contains("is-active") || skipOpeningButton.classList.contains("is-hidden")) {
+        return;
+      }
+      playSfx("dialogue");
+      introVideo.pause();
+      if (Number.isFinite(introVideo.duration)) {
+        introVideo.currentTime = Math.max(0, introVideo.duration - 0.08);
+      }
+      handleOpeningVideoEnded();
+    }
+
+    function continueStory() {
+      loadScene(0);
+      showScreen("play");
+    }
+
+    function loadScene(index) {
+      const scene = scenes[index];
+      state.sceneIndex = index;
+      state.dialogueIndex = 0;
+      state.mode = state.completedScenes.has(index) ? "complete" : "dialogue";
+      state.found = state.foundByScene[index];
+      resetGameTimer();
+      setAssetSource(sceneFallback, scene.fallback);
+      sceneFallback.alt = `${scene.title}静态场景`;
+      sceneFallback.classList.add("is-visible");
+      setAssetSource(sceneVideo, scene.video);
+      const showFallback = () => sceneFallback.classList.add("is-visible");
+      const showVideo = () => sceneFallback.classList.remove("is-visible");
+      sceneVideo.addEventListener("loadeddata", showVideo, { once: true });
+      sceneVideo.addEventListener("playing", showVideo, { once: true });
+      sceneVideo.addEventListener("error", showFallback, { once: true });
+      const playPromise = sceneVideo.play();
+      if (playPromise) playPromise.catch(showFallback);
+      sceneTitle.textContent = scene.title;
+      sceneObjective.textContent = scene.objectiveIdle;
+      setAssetSource(dialoguePortrait, scene.portrait);
+      dialoguePortrait.alt = scene.speaker;
+      speaker.textContent = scene.speaker;
+      dialoguePanel.classList.add("is-hidden");
+      updateNpc();
+      renderHotspots();
+      updateCounter();
+      updateTabs();
+      renderCollectionHud();
+    }
+
+    function updateNpc() {
+      const scene = scenes[state.sceneIndex];
+      Object.assign(npcButton.style, {
+        left: `${scene.npc.x * 100}%`,
+        top: `${scene.npc.y * 100}%`,
+        width: `${scene.npc.w * 100}%`,
+        height: `${scene.npc.h * 100}%`
+      });
+      npcButton.classList.toggle("is-muted", state.mode !== "dialogue");
+      npcButton.disabled = state.mode !== "dialogue";
+    }
+
+    function renderHotspots() {
+      const scene = scenes[state.sceneIndex];
+      hotspotLayer.innerHTML = "";
+      scene.hotspots.forEach((spot, index) => {
+        const pad = GAME_CONFIG.hotspotPadding;
+        const x = Math.max(0, spot.x - pad);
+        const y = Math.max(0, spot.y - pad);
+        const w = Math.min(1 - x, spot.w + pad * 2);
+        const h = Math.min(1 - y, spot.h + pad * 2);
+        const button = document.createElement("button");
+        button.className = "hotspot";
+        button.type = "button";
+        button.setAttribute("aria-label", `${scene.itemName}${index + 1}`);
+        Object.assign(button.style, {
+          left: `${x * 100}%`,
+          top: `${y * 100}%`,
+          width: `${w * 100}%`,
+          height: `${h * 100}%`
+        });
+        if (state.found.includes(index)) {
+          button.classList.add("is-found");
+        }
+        button.addEventListener("click", (event) => collectItem(index, button, event));
+        hotspotLayer.appendChild(button);
+      });
+      setHotspotEnabled(state.mode === "search");
+    }
+
+    function setHotspotEnabled(enabled) {
+      Array.from(hotspotLayer.children).forEach((node) => {
+        node.disabled = !enabled;
+        node.style.pointerEvents = enabled ? "auto" : "none";
+      });
+    }
+
+    function advanceDialogue() {
+      const scene = scenes[state.sceneIndex];
+      if (state.mode !== "dialogue") {
+        return;
+      }
+
+      if (state.dialogueIndex < scene.dialogues.length) {
+        playSfx("dialogue");
+        speaker.textContent = scene.speaker;
+        dialogueLine.textContent = scene.dialogues[state.dialogueIndex];
+        dialogueButton.textContent = state.dialogueIndex === scene.dialogues.length - 1 ? "开始寻找" : "继续";
+        dialoguePanel.classList.remove("is-hidden");
+        state.dialogueIndex += 1;
+        return;
+      }
+
+      beginSearch();
+    }
+
+    function beginSearch() {
+      const scene = scenes[state.sceneIndex];
+      state.mode = "search";
+      state.found = state.foundByScene[state.sceneIndex];
+      dialoguePanel.classList.add("is-hidden");
+      sceneObjective.textContent = scene.objectiveFind;
+      setHotspotEnabled(true);
+      updateNpc();
+      updateTabs();
+      startSceneMusic();
+      startGameTimer();
+      showToast(`找到 10 个${scene.itemName}后再回来交换线索。`);
+    }
+
+    function collectItem(index, node, event) {
+      if (event) {
+        event.stopPropagation();
+      }
+      if (state.mode !== "search" || state.found.includes(index)) {
+        return;
+      }
+      const scene = scenes[state.sceneIndex];
+      state.found.push(index);
+      node.classList.add("is-found");
+      playSfx("collect");
+      animateCollectToHud(scene, node, event);
+      updateCounter();
+      state.combo += 1;
+      if (state.combo >= GAME_CONFIG.timer.comboNeed) {
+        state.combo = 0;
+        changeTime(GAME_CONFIG.timer.comboBonusSeconds);
+        showToast(`连续找到 ${GAME_CONFIG.timer.comboNeed} 个，时间 +${GAME_CONFIG.timer.comboBonusSeconds} 秒。`);
+      }
+
+      if (state.found.length === scene.hotspots.length) {
+        completeScene();
+      }
+    }
+
+    function completeScene() {
+      const scene = scenes[state.sceneIndex];
+      state.mode = "complete";
+      clearGameTimer();
+      stopSceneMusic();
+      state.completedScenes.add(state.sceneIndex);
+      state.clues[state.sceneIndex] = scene.clue;
+      setHotspotEnabled(false);
+      updateNpc();
+      updateTabs();
+      sceneObjective.textContent = `已找齐 ${scene.hotspots.length} 个${scene.itemName}。`;
+      speaker.textContent = scene.speaker;
+      dialogueLine.textContent = scene.clue;
+      dialogueButton.textContent = state.sceneIndex < scenes.length - 1 ? `进入${scenes[state.sceneIndex + 1].shortName}` : "播放真相";
+      dialoguePanel.classList.remove("is-hidden");
+    }
+
+    function failScene() {
+      if (state.mode !== "search") {
+        return;
+      }
+      const scene = scenes[state.sceneIndex];
+      state.mode = "failed";
+      clearGameTimer();
+      playSfx("miss");
+      stopSceneMusic();
+      state.combo = 0;
+      state.foundByScene[state.sceneIndex] = [];
+      state.found = state.foundByScene[state.sceneIndex];
+      setHotspotEnabled(false);
+      renderHotspots();
+      updateCounter();
+      updateNpc();
+      updateTabs();
+      sceneObjective.textContent = `时间耗尽，重新找齐 10 个${scene.itemName}。`;
+      speaker.textContent = "艾米";
+      dialogueLine.textContent = "风雪把线索掩得太快了。再试一次，这次不能浪费任何一步。";
+      dialogueButton.textContent = "重新挑战";
+      dialoguePanel.classList.remove("is-hidden");
+    }
+
+    function retrySceneSearch() {
+      state.foundByScene[state.sceneIndex] = [];
+      state.found = state.foundByScene[state.sceneIndex];
+      renderHotspots();
+      updateCounter();
+      beginSearch();
+    }
+
+    function proceedAfterComplete() {
+      if (state.sceneIndex < scenes.length - 1) {
+        transitionToScene(state.sceneIndex + 1);
+        return;
+      }
+      startTruthVideo();
+    }
+
+    async function startTruthVideo() {
+      clearGameTimer();
+      stopSceneMusic();
+      renderEnding();
+      transitionOverlay.classList.add("is-visible");
+      await wait(GAME_CONFIG.transition.fadeMs);
+      showScreen("truth");
+      setAssetSource(truthVideo, GAME_CONFIG.media.truthVideo);
+      truthVideo.currentTime = 0;
+      const playPromise = truthVideo.play();
+      if (playPromise) {
+        playPromise.catch(() => {
+          showToast("结尾视频需要手动播放。");
+          truthVideo.setAttribute("controls", "controls");
+        });
+      }
+      await wait(GAME_CONFIG.transition.holdMs);
+      transitionOverlay.classList.remove("is-visible");
+    }
+
+    function finishTruthVideo() {
+      truthVideo.pause();
+      truthVideo.removeAttribute("controls");
+      showScreen("ending");
+    }
+
+    function updateCounter() {
+      renderCollectionHud();
+    }
+
+    function updateTabs() {
+      // 场景按剧情自动推进，这里保留空函数避免分支里重复判断。
+    }
+
+    function renderEnding() {
+      clueList.innerHTML = "";
+      state.clues.forEach((clue, index) => {
+        const item = document.createElement("li");
+        item.textContent = `${scenes[index].shortName}：${clue}`;
+        clueList.appendChild(item);
+      });
+    }
+
+    function restartGame() {
+      clearGameTimer();
+      stopSceneMusic();
+      introVideo.pause();
+      truthVideo.pause();
+      settingsPanel.classList.add("is-hidden");
+      choiceOptions.classList.add("is-hidden");
+      skipOpeningButton.classList.add("is-hidden");
+      state.storyIndex = 0;
+      state.sceneIndex = 0;
+      state.dialogueIndex = 0;
+      state.mode = "dialogue";
+      state.openingPhase = "";
+      state.found = [];
+      state.foundByScene = scenes.map(() => []);
+      state.completedScenes = new Set();
+      state.clues = [];
+      state.combo = 0;
+      resetGameTimer();
+      renderCollectionHud();
+      showScreen("start");
+    }
+
+    document.getElementById("startButton").addEventListener("click", startIntro);
+    document.getElementById("skipTruthButton").addEventListener("click", finishTruthVideo);
+    document.getElementById("restartButton").addEventListener("click", restartGame);
+    skipOpeningButton.addEventListener("click", skipOpeningVideoSegment);
+    settingsButton.addEventListener("click", () => {
+      initAudio();
+      settingsPanel.classList.toggle("is-hidden");
+    });
+    volumeSlider.addEventListener("input", updateAudioVolume);
+    endGameButton.addEventListener("click", restartGame);
+    storyNextButton.addEventListener("click", continueStory);
+    introVideo.addEventListener("ended", handleOpeningVideoEnded);
+    introVideo.addEventListener("error", () => {
+      showToast("没有读到视频，已进入调查。");
+      enterPlayFromOpening();
+    });
+    truthVideo.addEventListener("ended", finishTruthVideo);
+    truthVideo.addEventListener("error", () => {
+      showToast("没有读到结尾视频，已显示真相。");
+      finishTruthVideo();
+    });
+    npcButton.addEventListener("click", advanceDialogue);
+    dialogueButton.addEventListener("click", () => {
+      if (state.mode === "complete") {
+        proceedAfterComplete();
+      } else if (state.mode === "failed") {
+        retrySceneSearch();
+      } else {
+        advanceDialogue();
+      }
+    });
+    sceneFrame.addEventListener("click", (event) => {
+      if (state.mode !== "search") {
+        return;
+      }
+      if (event.target.closest(".hotspot") || event.target.closest(".dialogue-panel")) {
+        return;
+      }
+      state.combo = 0;
+      playSfx("miss");
+      changeTime(-GAME_CONFIG.timer.missPenaltySeconds);
+      showToast(`点错了，时间 -${GAME_CONFIG.timer.missPenaltySeconds} 秒。`);
+    });
+    document.addEventListener("DOMContentLoaded", initializeConfiguredAssets, { once: true });
+    updateAudioVolume();
+    resetGameTimer();
+    renderCollectionHud();
+  </script>
+
+  <script>
+    (() => {
+      const LEVEL_ID = "potato";
+      let completionSent = false;
+      let pausedMode = null;
+      let pausedMedia = [];
+      const hostOrigin = location.origin === "null" ? "*" : location.origin;
+
+      function notify(type, payload = {}) {
+        if (window.parent === window) return;
+        const bareType = type.startsWith("huazhongren:") ? type.slice("huazhongren:".length) : type;
+        window.parent.postMessage({ source: "huazhongren-level", type: `huazhongren:${bareType}`, level: LEVEL_ID, ...payload }, hostOrigin);
+      }
+
+      function reportProgress(stage = "scene") {
+        const percent = stage === "ending" ? 100 : Math.round(state.completedScenes.size / scenes.length * 100);
+        notify("progress", { checkpoint: `potato:${stage}:scene-${state.sceneIndex + 1}`, percent });
+      }
+
+      function reportComplete() {
+        if (completionSent) return;
+        completionSent = true;
+        reportProgress("ending");
+        notify("level-complete");
+      }
+
+      function pauseLevel() {
+        if (pausedMode === null) {
+          pausedMode = state.mode;
+          state.mode = "host-paused";
+        }
+        pausedMedia = [...document.querySelectorAll("audio, video")].filter(media => !media.paused);
+        pausedMedia.forEach(media => media.pause());
+        if (state.audioContext?.state === "running") state.audioContext.suspend();
+      }
+
+      function resumeLevel() {
+        if (pausedMode !== null) {
+          state.mode = pausedMode;
+          pausedMode = null;
+        }
+        pausedMedia.forEach(media => media.play().catch(() => {}));
+        pausedMedia = [];
+        if (state.audioContext?.state === "suspended") state.audioContext.resume().catch(() => {});
+      }
+
+      if (window.parent === window) {
+        const returnButton = document.createElement("button");
+        returnButton.id = "level-return-global";
+        returnButton.type = "button";
+        returnButton.textContent = "返回画廊（本关将从头开始）";
+        returnButton.style.cssText = "position:fixed;z-index:20;left:max(12px,env(safe-area-inset-left));top:max(12px,env(safe-area-inset-top));min-width:44px;min-height:48px;padding:9px 14px;color:#f3e8ca;background:#16110d;border:1px solid #c59c4f;box-shadow:0 5px 20px #000b;cursor:pointer;font:16px 'Microsoft YaHei',sans-serif";
+        returnButton.addEventListener("click", () => location.assign("../../index.html"));
+        document.body.append(returnButton);
+      }
+
+      new MutationObserver(() => {
+        if (screens.ending.classList.contains("is-active")) reportComplete();
+      }).observe(screens.ending, { attributes: true, attributeFilter: ["class"] });
+      truthVideo.addEventListener("ended", reportComplete);
+
+      window.addEventListener("message", event => {
+        if (event.origin !== location.origin || event.source !== window.parent) return;
+        const message = event.data;
+        if (!message || message.source !== "huazhongren-gallery" || message.level !== LEVEL_ID) return;
+        const messageType = String(message.type || "").startsWith("huazhongren:") ? String(message.type).slice("huazhongren:".length) : message.type;
+        if (messageType === "pause") pauseLevel();
+        if (messageType === "resume") resumeLevel();
+        if (messageType === "restart") restartGame();
+        if (messageType === "settings") {
+          const value = Math.round((message.volume ?? message.settings?.volume ?? .8) * 100);
+          volumeSlider.value = String(value);
+          updateAudioVolume();
+        }
+      });
+
+      notify("ready");
+      reportProgress("ready");
+      document.addEventListener("click", () => setTimeout(() => reportProgress("interaction"), 0));
+    })();
+  </script>
+</body>
+</html>

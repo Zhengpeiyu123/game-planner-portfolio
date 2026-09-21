@@ -1,0 +1,331 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#08131e">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Ccircle cx='32' cy='32' r='28' fill='%2308131e' stroke='%23d5a642' stroke-width='3'/%3E%3Cpath d='M19 34c4 12 22 12 26 0-7 4-19 4-26 0Z' fill='%238a291f'/%3E%3Cpath d='M21 28c3-13 19-17 25-4-8-5-18-3-25 4Z' fill='%23d5a642'/%3E%3C/svg%3E">
+  <title>红胡子的人</title>
+  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="puzzle-overhaul.css">
+  <link rel="stylesheet" href="conservation-interaction.css">
+</head>
+<body>
+  <main id="game" aria-live="polite">
+    <div id="persistence-notice" class="persistence-notice" role="status" hidden>当前进度仅在本次打开期间保留</div>
+    <canvas id="fx-canvas" aria-hidden="true"></canvas>
+
+    <section id="title-screen" class="screen title-screen is-active" aria-label="主菜单">
+      <div class="title-vignette"></div>
+      <div class="title-content safe-zone">
+        <h1>红胡子的人</h1>
+        <nav class="menu-stack" aria-label="主菜单操作">
+          <button id="start-btn" class="game-button game-button--primary" data-action="start">
+            <strong>开始寻找</strong>
+          </button>
+          <button id="continue-btn" class="game-button" data-action="continue" disabled>
+            <strong>继续旅程</strong>
+          </button>
+          <button class="game-button" data-action="chapters">
+            <strong>章节选择</strong>
+          </button>
+          <button class="game-button" data-action="settings">
+            <strong>游戏设置</strong>
+          </button>
+        </nav>
+      </div>
+      <button class="round-button title-sound" data-action="toggle-sound" data-tooltip="声音" aria-label="切换声音"><svg aria-hidden="true" viewBox="0 0 24 24"><path d="M4 9v6h4l5 4V5L8 9H4Zm12.5-.5a5 5 0 0 1 0 7M19 6a8 8 0 0 1 0 12"/></svg></button>
+    </section>
+
+    <section id="cinematic-screen" class="screen cinematic-screen" aria-label="剧情过场">
+      <img id="cinematic-fallback" class="cinematic-fallback" alt="">
+      <video id="cinematic-video" playsinline preload="auto"></video>
+      <div class="cinematic-grade"></div>
+      <p id="cinematic-caption" class="cinematic-caption safe-zone"></p>
+      <button class="game-button cinematic-skip" data-action="skip-cinematic">跳过</button>
+    </section>
+
+    <section id="story-screen" class="screen story-screen" aria-label="游戏场景">
+      <video id="scene-video" class="scene-media" muted loop playsinline preload="auto"></video>
+      <img id="scene-fallback" class="scene-media scene-fallback" alt="">
+      <div class="scene-grade"></div>
+      <div id="character-layer" class="character-layer" aria-hidden="true"></div>
+
+      <header class="hud safe-zone">
+        <div class="chapter-plaque hud-text">
+          <span id="chapter-number">第一章</span>
+          <strong id="chapter-title">唐吉老爹</strong>
+          <em id="chapter-location">唐吉老爹画材店</em>
+        </div>
+        <div class="hud-actions">
+          <button id="hint-button" class="round-button hint-button" data-action="hint" data-tooltip="提示" aria-label="使用提示，剩余3点"><svg aria-hidden="true" viewBox="0 0 24 24"><path d="M9 18h6M10 22h4M8.5 14.5C7.6 13.6 7 12.2 7 10.7a5 5 0 1 1 10 0c0 1.5-.6 2.9-1.5 3.8-.8.8-1.2 1.5-1.3 2.5H9.8c-.1-1-.5-1.7-1.3-2.5Z"/></svg><span id="hint-count" class="hint-count">3</span></button>
+          <button class="round-button" data-action="journal" data-tooltip="线索" aria-label="打开线索册"><svg aria-hidden="true" viewBox="0 0 24 24"><path d="M4 5.5A3.5 3.5 0 0 1 7.5 2H11v17H7.5A3.5 3.5 0 0 0 4 22V5.5ZM20 5.5A3.5 3.5 0 0 0 16.5 2H13v17h3.5A3.5 3.5 0 0 1 20 22V5.5Z"/></svg></button>
+          <button class="round-button" data-action="backlog" data-tooltip="回看" aria-label="打开对白回溯"><svg aria-hidden="true" viewBox="0 0 24 24"><path d="M4 7v5h5M5.2 16a8 8 0 1 0 .2-8.3L4 9m8-3v6l4 2"/></svg></button>
+          <button class="round-button" data-action="pause" data-tooltip="暂停" aria-label="暂停游戏"><svg aria-hidden="true" viewBox="0 0 24 24"><path d="M7 5h3v14H7zM14 5h3v14h-3z"/></svg></button>
+        </div>
+      </header>
+
+      <aside id="objective-card" class="objective-card safe-zone hud-text">
+        <strong id="objective-text">进入唐吉老爹的画材店</strong>
+        <div id="objective-progress" class="objective-progress"></div>
+      </aside>
+
+      <div id="hotspot-layer" class="hotspot-layer" aria-label="场景观察点"></div>
+
+      <section id="dialogue-panel" class="dialogue-panel safe-zone" aria-label="对话">
+        <div id="left-character" class="dialogue-character dialogue-character--left">
+          <img id="player-portrait" src="assets/images/characters/etienne-alpha.png" alt="艾蒂安">
+          <span class="character-caption">艾蒂安</span>
+        </div>
+        <div class="dialogue-center">
+          <div class="dialogue-copy">
+            <span id="speaker-name" class="speaker-name">旁白</span>
+            <p id="dialogue-text" class="dialogue-text"></p>
+          </div>
+          <div id="choice-list" class="choice-list"></div>
+          <span id="advance-hint" class="advance-hint">点击继续</span>
+        </div>
+        <div id="right-character" class="dialogue-character dialogue-character--right">
+          <img id="npc-portrait" alt="">
+          <span id="npc-name" class="character-caption"></span>
+          <div class="affinity-badge">路线档案 <strong id="affinity-value">待定</strong></div>
+        </div>
+      </section>
+
+      <button id="explore-continue" class="context-cta game-button game-button--primary" hidden>继续</button>
+      <div id="toast" class="toast" role="status" aria-live="assertive"></div>
+      <div id="guide-tip" class="guide-tip" hidden>
+        <p>留意画面中轻微的反光，点击可以观察。找不到时可使用提示，每章有3点，用完后答题补充。</p>
+        <button class="game-button game-button--primary" data-action="dismiss-guide">知道了</button>
+      </div>
+    </section>
+
+    <section id="puzzle-screen" class="screen overlay-screen" aria-label="章节互动">
+      <div class="overlay-scrim"></div>
+      <div class="puzzle-shell safe-zone">
+        <header class="puzzle-header">
+          <div class="archive-tab">
+            <span id="puzzle-kicker" class="eyebrow">章节互动</span><h2 id="puzzle-title">整理画堆</h2>
+            <p id="puzzle-instruction" class="objective-slip">移开挡在最上面的画。</p>
+          </div>
+          <div id="puzzle-counter" class="puzzle-counter">0 / 3</div>
+          <button id="puzzle-pause" class="round-button puzzle-pause" data-action="pause" aria-label="暂停修复">Ⅱ</button>
+        </header>
+        <div class="puzzle-workbench">
+          <div id="puzzle-content" class="puzzle-content work-surface"></div>
+          <aside id="context-tool-tray" class="tool-tray" aria-label="当前工具"><span>修复工具</span><i class="tool-image" aria-hidden="true"></i><p>选择物件后，工具与档案批注会在工作区出现。</p></aside>
+        </div>
+        <footer class="puzzle-footer ledger-bar">
+          <button id="puzzle-undo" class="ledger-control" type="button">撤回</button>
+          <button id="puzzle-reset" class="ledger-control" type="button">重置</button>
+          <button id="puzzle-hint-button" class="ledger-control hint-note-button" data-action="hint">提示（3）</button>
+          <button id="puzzle-finish" class="wax-submit" hidden>收下线索</button>
+        </footer>
+      </div>
+    </section>
+
+    <section id="transition-screen" class="screen overlay-screen" aria-label="章节结算">
+      <div class="overlay-scrim"></div>
+      <div class="transition-card safe-zone">
+        <span id="transition-kicker" class="eyebrow">线索已记录</span>
+        <div id="fragment-medallion" class="fragment-medallion" aria-hidden="true">
+          <i></i><i></i><i></i><b></b>
+        </div>
+        <h2 id="transition-title">贝尔纳画廊</h2>
+        <blockquote id="transition-quote">“艺术很美，但颜料需要钱。”</blockquote>
+        <p id="transition-copy"></p>
+        <button id="next-chapter-btn" class="game-button game-button--primary">前往下一地点</button>
+      </div>
+    </section>
+
+    <section id="ending-screen" class="screen ending-screen" aria-label="结局">
+      <img src="assets/images/ending-memory.png" alt="由画具、旧靴、信件和向日葵组成的红胡子记忆画">
+      <div class="ending-grade"></div>
+      <div class="ending-copy safe-zone">
+        <p class="eyebrow">寻找结束，理解开始</p>
+        <h2 id="ending-title">我已经找到他了</h2>
+        <blockquote id="ending-quote">“他在他的画中，也在人们的记忆里。”</blockquote>
+        <p id="ending-summary"></p>
+        <div class="ending-actions">
+          <button class="game-button game-button--primary" data-action="ending-journal">查看线索</button>
+          <button class="game-button" data-action="restart">重新寻找</button>
+          <button class="game-button" data-action="title">返回标题</button>
+        </div>
+      </div>
+    </section>
+
+    <section id="journal-modal" class="modal" role="dialog" aria-modal="true" aria-labelledby="journal-title" hidden>
+      <div class="modal-scrim" data-action="close-modal"></div>
+      <div class="journal-book safe-zone">
+        <header>
+          <div><span class="eyebrow">寻人档案</span><h2 id="journal-title">线索与记忆</h2></div>
+          <button class="round-button" data-action="close-modal" aria-label="关闭线索册">×</button>
+        </header>
+        <div class="journal-pages">
+          <div id="witness-list" class="witness-list"></div>
+          <div class="journal-fragments">
+            <div class="fragment-medallion fragment-medallion--large" aria-hidden="true"><i></i><i></i><i></i><b></b></div>
+            <p id="journal-progress-text">尚未获得记忆碎片。</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="backlog-modal" class="modal" role="dialog" aria-modal="true" aria-labelledby="backlog-title" hidden>
+      <div class="modal-scrim" data-action="close-modal"></div>
+      <div class="modal-card safe-zone">
+        <header><div><span class="eyebrow">最近的声音</span><h2 id="backlog-title">对白回溯</h2></div><button class="round-button" data-action="close-modal" aria-label="关闭对白回溯">×</button></header>
+        <ol id="backlog-list" class="backlog-list"></ol>
+      </div>
+    </section>
+
+    <section id="settings-modal" class="modal" role="dialog" aria-modal="true" aria-labelledby="settings-title" hidden>
+      <div class="modal-scrim" data-action="close-modal"></div>
+      <div class="modal-card settings-card safe-zone">
+        <header><div><span class="eyebrow">旅程设置</span><h2 id="settings-title">声音与阅读</h2></div><button class="round-button" data-action="close-modal" aria-label="关闭设置">×</button></header>
+        <label>环境声音 <input id="volume-range" type="range" min="0" max="100" value="55"></label>
+        <label>文字速度 <select id="text-speed"><option value="slow">舒缓</option><option value="normal" selected>标准</option><option value="fast">快速</option><option value="instant">立即显示</option></select></label>
+        <label>新手引导 <select id="tutorial-mode"><option value="full" selected>完整</option><option value="brief">简洁</option><option value="off">关闭</option></select></label>
+        <label class="toggle-row"><input id="skip-seen-cinematics" type="checkbox"><span>自动跳过已看过场</span></label>
+        <label class="toggle-row"><input id="reduce-motion" type="checkbox"><span>减少动态效果</span></label>
+        <label class="toggle-row"><input id="high-contrast" type="checkbox"><span>增强文字对比</span></label>
+        <button class="game-button" data-action="fullscreen">切换全屏</button>
+        <button class="game-button danger-button" data-action="clear-save">清除旅程记录</button>
+      </div>
+    </section>
+
+    <section id="chapters-modal" class="modal" role="dialog" aria-modal="true" aria-labelledby="chapters-title" hidden>
+      <div class="modal-scrim" data-action="close-modal"></div>
+      <div class="modal-card safe-zone">
+        <header><div><span class="eyebrow">章节</span><h2 id="chapters-title">章节选择</h2></div><button class="round-button" data-action="close-modal" aria-label="关闭章节选择">×</button></header>
+        <div id="chapter-grid" class="chapter-grid"></div>
+      </div>
+    </section>
+
+    <section id="pause-modal" class="modal" role="dialog" aria-modal="true" aria-labelledby="pause-title" hidden>
+      <div class="modal-scrim"></div>
+      <div class="pause-card safe-zone">
+        <span class="eyebrow">旅程暂停</span><h2 id="pause-title">让画面停一会儿</h2>
+        <button class="game-button game-button--primary" data-action="resume">继续</button>
+        <button class="game-button" data-action="settings">游戏设置</button>
+        <button class="game-button" data-action="title">保存并返回标题</button>
+      </div>
+    </section>
+
+    <section id="hint-quiz-modal" class="modal" role="dialog" aria-modal="true" aria-labelledby="hint-quiz-title" hidden>
+      <div class="modal-scrim" data-action="close-modal"></div>
+      <div class="modal-card hint-quiz-card safe-zone">
+        <header><div><span class="eyebrow">提示次数已用完</span><h2 id="hint-quiz-title">答对一道题，获得提示</h2></div><button class="round-button" data-action="close-modal" aria-label="关闭思考题">×</button></header>
+        <p id="quiz-question" class="quiz-question"></p>
+        <div id="quiz-options" class="quiz-options"></div>
+        <p id="quiz-feedback" class="quiz-feedback" role="status"></p>
+      </div>
+    </section>
+
+    <div id="rotate-notice" class="rotate-notice" role="status"><strong>请横置设备</strong></div>
+
+    <div id="onboarding-overlay" class="onboarding-overlay" hidden>
+      <div id="onboarding-focus" class="onboarding-focus" aria-hidden="true"><span>☝</span></div>
+      <div id="onboarding-card" class="onboarding-card">
+        <strong id="onboarding-title">开始对话</strong>
+        <p id="onboarding-text">点击纸张继续阅读。</p>
+        <button class="game-button" data-action="skip-onboarding">跳过教学</button>
+      </div>
+    </div>
+  </main>
+  <script src="gameplay-assets.js"></script>
+  <script src="conservation-interaction.js"></script>
+  <script src="puzzles/logic.js"></script>
+  <script src="puzzle-overhaul.js"></script>
+  <script src="game.js"></script>
+  <script>
+    (() => {
+      const LEVEL_ID = "redbeard";
+      let completionSent = false;
+      let pausedMedia = [];
+      const hostOrigin = location.origin === "null" ? "*" : location.origin;
+      const notify = (type, payload = {}) => {
+        const bareType = type.startsWith("huazhongren:") ? type.slice("huazhongren:".length) : type;
+        if (window.parent !== window) window.parent.postMessage({ source: "huazhongren-level", type: `huazhongren:${bareType}`, level: LEVEL_ID, ...payload }, hostOrigin);
+      };
+      const reportComplete = () => {
+        if (completionSent) return;
+        completionSent = true;
+        notify("progress", { checkpoint: "redbeard:ending", percent: 100 });
+        notify("level-complete");
+      };
+      const pauseLevel = () => {
+        pausedMedia = [...document.querySelectorAll("audio, video")].filter(media => !media.paused);
+        pausedMedia.forEach(media => media.pause());
+        if (document.querySelector("#story-screen.is-active") && document.querySelector("#pause-modal")?.hidden) {
+          document.querySelector('[data-action="pause"]')?.click();
+        }
+        window.__redbeardHostRuntime?.pause();
+        window.__redbeardHostAudio?.pause();
+        window.RedbeardPuzzleOverhaul?.setHostPaused(true, false);
+      };
+      const finishResumeLevel = () => {
+        document.querySelector('#pause-modal:not([hidden]) [data-action="resume"]')?.click();
+        window.RedbeardPuzzleOverhaul?.setHostPaused(false, false);
+        pausedMedia.forEach(media => media.play().catch(() => {}));
+        pausedMedia = [];
+      };
+      const resumeLevel = async () => {
+        window.RedbeardPuzzleOverhaul?.setHostPaused(false, true);
+        const resumed = await (window.__redbeardHostRuntime?.resume() ?? Promise.resolve(true));
+        if (resumed) finishResumeLevel();
+        return resumed;
+      };
+      window.addEventListener("huazhongren:host-state", event => {
+        if (event.detail?.state === "resumed") finishResumeLevel();
+      });
+
+      if (window.parent === window) {
+        const returnButton = document.createElement("button");
+        returnButton.id = "level-return-global";
+        returnButton.className = "parent-return-bookmark";
+        returnButton.type = "button";
+        returnButton.textContent = "返回画廊（本关将从头开始）";
+        returnButton.style.cssText = "";
+        returnButton.addEventListener("click", () => location.assign("../../index.html"));
+        document.body.append(returnButton);
+      }
+
+      const ending = document.querySelector("#ending-screen");
+      new MutationObserver(() => ending.classList.contains("is-active") && reportComplete())
+        .observe(ending, { attributes: true, attributeFilter: ["class"] });
+      window.addEventListener("huazhongren:progress", event => notify("progress", event.detail));
+
+      window.addEventListener("message", event => {
+        if (event.origin !== location.origin || event.source !== window.parent) return;
+        const message = event.data;
+        if (!message || message.source !== "huazhongren-gallery" || message.level !== LEVEL_ID) return;
+        const messageType = String(message.type || "").startsWith("huazhongren:") ? String(message.type).slice("huazhongren:".length) : message.type;
+        if (messageType === "pause") pauseLevel();
+        if (messageType === "resume") resumeLevel();
+        if (messageType === "restart") {
+          window.__redbeardHostStorage?.removeSave();
+          location.reload();
+        }
+        if (messageType === "settings") {
+          const input = document.querySelector("#volume-range");
+          input.value = String(Math.round((message.volume ?? message.settings?.volume ?? .8) * 100));
+          input.dispatchEvent(new Event("input", { bubbles: true }));
+          const reduceMotion = document.querySelector("#reduce-motion");
+          reduceMotion.checked = Boolean(message.reduceMotion ?? message.settings?.reduceMotion);
+          reduceMotion.dispatchEvent(new Event("change", { bubbles: true }));
+          const highContrast = document.querySelector("#high-contrast");
+          const nextHighContrast = Boolean(message.highContrast ?? message.settings?.highContrast);
+          if (highContrast.checked !== nextHighContrast) {
+            highContrast.checked = nextHighContrast;
+            highContrast.dispatchEvent(new Event("change", { bubbles: true }));
+          }
+        }
+      });
+
+      notify("ready");
+      notify("progress", { checkpoint: "redbeard:ready", percent: 0 });
+    })();
+  </script>
+</body>
+</html>

@@ -1,0 +1,3 @@
+Project-local generated gameplay assets.
+
+The damaged, restored and workbench state images were produced for 《画中人》 and are distributed only with this runtime. Tool images are mechanical raster crops from the same approved workbench master. No third-party logo, UI, subtitle or watermark is embedded.

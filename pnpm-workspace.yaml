@@ -1,0 +1,2 @@
+# No dependency install scripts are needed by this static website.
+onlyBuiltDependencies: []

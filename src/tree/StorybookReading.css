@@ -1,0 +1,326 @@
+/* Reading pages echo the supplied starry canopy: indigo, peach light, and pastel grain. */
+html:has(.storybook-theme) { background: #1c2a43; }
+.storybook-theme {
+  --paper: #1c2a43;
+  --paper-deep: #263650;
+  --ink: #f3e5c9;
+  --muted: #bac2d0;
+  --accent: #e8cb83;
+  --line: #b9c5dc2c;
+  --tree-surface: #263650;
+  --tree-raised: #2c3d57;
+  --tree-selected: #354057;
+  --tree-soft-ink: #e0dbd1;
+  --tree-header: #1c2a43ed;
+  --tree-image-ground: #1c3038;
+  --sb-night-violet: #263650;
+  --sb-coral: #e9ac93;
+  --sb-mist: #a5b5cf;
+  --sb-paper-edge: #d2c5ab;
+  --sb-serif: "Songti SC", "STSong", "Noto Serif SC", Georgia, serif;
+  --sb-script: "Kaiti SC", "STKaiti", "KaiTi", Georgia, serif;
+  background: var(--paper);
+}
+.storybook-theme :is(.hero, .method-section, .about, .case-page, .contact) {
+  position: relative;
+  isolation: isolate;
+}
+.storybook-theme :is(.hero, .method-section, .about, .case-page, .contact)::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180' viewBox='0 0 180 180'%3E%3Cfilter id='grain'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.78' numOctaves='3' seed='7' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23grain)'/%3E%3C/svg%3E") center / 180px repeat;
+  opacity: 0.045;
+  mix-blend-mode: screen;
+}
+.storybook-theme :is(.hero h1, .section-heading h2, .project-copy h3, .about h2, .contact h2,
+  .case-heading h1, .design-brief h2, .panel-heading h2, .next-project h2, .not-found h1) {
+  font-family: var(--sb-serif);
+  font-weight: 600;
+  line-height: 1.45;
+  letter-spacing: -0.035em;
+}
+.storybook-theme :is(.method-detail h3, .decision h3, .route-explorer h3, .review-list h3) {
+  font-family: var(--sb-serif);
+  font-weight: 600;
+  line-height: 1.65;
+}
+.storybook-theme :is(.section-kicker, .eyebrow) {
+  font-weight: 450;
+  letter-spacing: 0.1em;
+}
+.storybook-theme :is(.hero-summary, .lead, .about-practice, .project-summary, .review-list p) { line-height: 1.95; }
+.storybook-theme .text-link { border-bottom-style: dashed; border-color: #e8cb8370; }
+.storybook-theme :is(a, button):active { translate: 0 1px; }
+.storybook-theme .text-link:hover { color: var(--accent); border-color: var(--accent); }
+.storybook-theme .skip-link { border: 1px solid var(--accent); border-radius: 2px 5px 2px 3px; }
+
+/* Lettered navigation and a small, imperfect stamp. */
+.storybook-theme .site-header {
+  background: var(--tree-header);
+  border-color: #b9c5dc26;
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}
+.storybook-theme .brand { font-family: var(--sb-serif); font-size: 18px; letter-spacing: 0.09em; }
+.storybook-theme .brand-mark {
+  font-family: var(--sb-script);
+  color: var(--sb-coral);
+  border: 1px solid #e9ac9399;
+  border-radius: 3px 1px 5px 2px;
+  transform: rotate(-3deg);
+}
+.storybook-theme .brand small {
+  font-family: "PingFang SC", "Microsoft YaHei", sans-serif;
+  color: var(--sb-mist);
+  letter-spacing: 0.09em;
+}
+.storybook-theme .desktop-nav { color: var(--tree-soft-ink); }
+.storybook-theme .desktop-nav a:hover,
+.storybook-theme .desktop-nav a[aria-current] {
+  color: var(--accent);
+  border-color: transparent;
+  text-decoration: underline wavy #e8cb8399;
+  text-underline-offset: 10px;
+  text-decoration-thickness: 1px;
+}
+.storybook-theme .nav-contact { color: var(--sb-coral); }
+
+/* The alternate index is a quiet opening spread, with actual work in paper mounts. */
+.storybook-theme .hero { background: var(--paper); }
+.storybook-theme .hero h1 { line-height: 1.38; font-weight: 500; }
+.storybook-theme .hero-kicker { color: var(--sb-mist); }
+.storybook-theme .hero-bottom { color: var(--sb-mist); }
+.storybook-theme .button-primary {
+  border: 1px solid #e8cb8399;
+  border-radius: 2px 6px 3px 5px;
+  color: var(--accent);
+  background: #e8cb8308;
+}
+.storybook-theme .button-primary:hover { background: #e8cb8318; color: var(--ink); }
+.storybook-theme .proof-strip strong { font-family: var(--sb-script); color: var(--accent); }
+.storybook-theme .proof-strip > div:nth-child(2) strong { color: var(--sb-coral); }
+.storybook-theme .proof-strip > div:nth-child(3) strong { color: var(--sb-mist); }
+.storybook-theme .project-card-featured { border-color: var(--line); border-top-style: dashed; }
+.storybook-theme .project-media {
+  padding: 7px;
+  background: var(--sb-paper-edge);
+  border-radius: 1px 3px 2px 1px;
+}
+.storybook-theme .project-media img { filter: none; }
+.storybook-theme .project-card-featured .project-media img { object-fit: cover; }
+.storybook-theme .image-index { background: #1c2a43e8; color: var(--ink); border-radius: 1px 3px 1px 2px; }
+.storybook-theme .image-open {
+  color: var(--accent);
+  background: #1c2a43e8;
+  border-color: #e8cb8377;
+  border-radius: 2px 5px 3px 1px;
+}
+.storybook-theme .project-tags { color: var(--sb-mist); }
+.storybook-theme .project-tags li { border-bottom-style: dashed; }
+.storybook-theme .project-type > span { color: var(--sb-coral); }
+
+/* A dark sketchbook: hand-lettered numbering, ruled edges, and legible prose. */
+.storybook-theme .method-workbench {
+  background: #26365080;
+  border: 1px solid #b9c5dc36;
+  border-radius: 3px 1px 4px 2px;
+}
+.storybook-theme .method-selector { border-right-style: dashed; padding-left: 14px; }
+.storybook-theme .method-selector button {
+  border-bottom-style: dashed;
+  border-radius: 2px 4px 2px 1px;
+}
+.storybook-theme .method-selector strong { font-family: var(--sb-serif); font-size: 19px; font-weight: 600; }
+.storybook-theme .method-selector button > span:first-child {
+  font-family: var(--sb-script);
+  font-style: italic;
+  font-size: 17px;
+  color: var(--sb-mist);
+  opacity: 1;
+}
+.storybook-theme .method-selector button.selected {
+  color: var(--ink);
+  background: #e8cb830c;
+  box-shadow: inset 2px 0 0 #e8cb8399;
+  border-color: #e8cb834d;
+}
+.storybook-theme .method-selector button:not(.selected):hover { background: #a5b5cf0d; }
+.storybook-theme .method-detail { background: transparent; }
+.storybook-theme .method-example { border-color: var(--sb-coral); }
+.storybook-theme .method-example span { color: var(--sb-coral); }
+.storybook-theme .method-output { border-top-style: dashed; }
+.storybook-theme .method-output strong { color: var(--sb-mist); }
+.storybook-theme .portrait-frame {
+  border: 7px solid var(--sb-paper-edge);
+  border-bottom-width: 20px;
+  border-radius: 2px 1px 4px 2px;
+  background: var(--sb-paper-edge);
+}
+.storybook-theme .portrait-frame img { filter: none; }
+.storybook-theme .portrait-note { font-family: var(--sb-serif); color: var(--sb-mist); font-size: 12px; }
+.storybook-theme .about .section-kicker { color: var(--sb-coral); }
+.storybook-theme .experience-list article { border-top-style: dashed; }
+.storybook-theme .experience-list time { color: var(--sb-mist); }
+
+/* Existing specifications retain their hierarchy and their unaltered source images. */
+.storybook-theme .case-heading .section-kicker { color: var(--sb-coral); }
+.storybook-theme .back-link { color: var(--sb-mist); }
+.storybook-theme .case-position { border-color: var(--sb-coral); }
+.storybook-theme .case-facts { border-top-style: dashed; }
+.storybook-theme .case-facts span { color: var(--sb-mist); }
+.storybook-theme .case-cover > img {
+  background: var(--tree-image-ground);
+  border: 8px solid var(--sb-paper-edge);
+  border-radius: 2px;
+  filter: none;
+}
+.storybook-theme :is(.case-cover figcaption, .spec-image figcaption, .comparison figcaption) {
+  color: var(--sb-mist);
+  line-height: 1.9;
+}
+.storybook-theme .case-sidebar .eyebrow { color: var(--sb-coral); }
+.storybook-theme .scope-note { border-top-style: dashed; }
+.storybook-theme .brief-boundary { border-block-style: dashed; }
+.storybook-theme .brief-boundary > span { color: var(--sb-coral); }
+.storybook-theme .flow-number,
+.storybook-theme .decision-number {
+  color: var(--accent);
+  font-family: var(--sb-script);
+  font-style: italic;
+  font-size: 20px;
+  line-height: 1.3;
+}
+.storybook-theme .decision-number { font-size: 24px; }
+.storybook-theme .design-flow { border-block-style: dashed; background: #b9c5dc2c; }
+.storybook-theme .design-flow li:nth-child(2) .flow-number { color: var(--sb-coral); }
+.storybook-theme .design-flow li:nth-child(3) .flow-number { color: var(--sb-mist); }
+.storybook-theme .tab-list { background: #1c2a43f5; }
+.storybook-theme .tab-list button { font-family: var(--sb-serif); font-size: 16px; }
+.storybook-theme .tab-list button > span { font-family: var(--sb-script); font-style: italic; font-size: 12px; }
+.storybook-theme .tab-list button[aria-selected="true"] {
+  background: #e8cb830c;
+  border-color: var(--accent);
+  color: var(--ink);
+}
+.storybook-theme .tab-list button:hover { background: #a5b5cf0c; }
+.storybook-theme .decision { border-top-style: dashed; }
+.storybook-theme .decision dt { color: var(--sb-mist); }
+.storybook-theme .decision .decision-check { background: #e9ac9309; border-color: #e9ac9388; }
+.storybook-theme .decision-check dt { color: var(--sb-coral); }
+.storybook-theme .route-explorer { border-block-style: dashed; }
+.storybook-theme .route-options button { border-radius: 2px 4px 1px 3px; }
+.storybook-theme .route-options button[aria-pressed="true"] {
+  border-color: #e8cb83a3;
+  background: #e8cb8312;
+  color: var(--accent);
+}
+.storybook-theme .route-result > div:nth-of-type(1) > span { color: var(--sb-mist); }
+.storybook-theme .route-result > div:nth-of-type(2) > span { color: var(--sb-coral); }
+.storybook-theme .route-result > div:nth-of-type(3) > span { color: var(--accent); }
+.storybook-theme .case-callout p { font-family: var(--sb-serif); font-size: 19px; line-height: 1.85; }
+.storybook-theme .table-scroll { scrollbar-color: #a5b5cf70 var(--tree-surface); border-color: #b9c5dc45; }
+.storybook-theme caption { background: var(--sb-night-violet); color: var(--ink); }
+.storybook-theme thead th { color: var(--sb-mist); }
+.storybook-theme tbody tr:nth-child(even) { background: #a5b5cf06; }
+.storybook-theme :is(.spec-image img, .comparison img) { filter: none; }
+.storybook-theme .spec-image img { border: 5px solid var(--sb-paper-edge); }
+.storybook-theme .comparison a { border: 5px solid var(--sb-paper-edge); border-radius: 1px 3px 2px 1px; }
+.storybook-theme .comparison > div > div > span { color: var(--sb-mist); }
+.storybook-theme .spec-checklist { border-color: var(--sb-coral); }
+.storybook-theme .review-list article { border-top-style: dashed; }
+.storybook-theme .review-list article > span { color: var(--sb-coral); }
+.storybook-theme .materials { border-top-style: dashed; }
+.storybook-theme .material-link { border-top-style: dashed; }
+.storybook-theme .material-link > .arrow { color: var(--accent); }
+.storybook-theme .next-project .eyebrow { color: var(--sb-mist); }
+
+/* The user's canopy appears quietly at the outer edge of the opening and ending. */
+.storybook-theme .contact {
+  background: var(--paper);
+  overflow: hidden;
+  border-top-style: dashed;
+}
+.storybook-theme .hero::after,
+.storybook-theme .contact::after {
+  content: "";
+  position: absolute;
+  z-index: -1;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  width: 55%;
+  background: url("/assets/storybook/starry-canopy-source.png") center bottom / cover no-repeat;
+  opacity: 0.14;
+  -webkit-mask-image: linear-gradient(to right, transparent, #000 90%);
+  mask-image: linear-gradient(to right, transparent, #000 90%);
+  pointer-events: none;
+}
+.storybook-theme .hero::after { width: 58%; opacity: 0.12; }
+.storybook-theme .contact .section-kicker { color: var(--sb-coral); }
+.storybook-theme .contact-email { color: var(--accent); }
+.storybook-theme .contact-links > a:nth-child(2) { color: var(--sb-mist); }
+.storybook-theme footer { border-top-style: dashed; }
+
+@media (max-width: 780px) {
+  .storybook-theme .brand { font-size: 16px; }
+  .storybook-theme .method-selector { padding: 12px; border-bottom-style: dashed; }
+  .storybook-theme .method-selector strong { font-size: 15px; }
+  .storybook-theme .method-selector button.selected { box-shadow: inset 0 -1px 0 #e8cb8399; }
+  .storybook-theme .portrait-frame { border-width: 5px; border-bottom-width: 15px; }
+  .storybook-theme .case-cover > img { border-width: 6px; }
+}
+@media (max-width: 520px) {
+  .storybook-theme .brand { font-size: 15px; }
+  .storybook-theme .desktop-nav { gap: 13px; }
+  .storybook-theme .hero h1 { font-size: clamp(32px, 8.6vw, 43px); }
+  .storybook-theme .project-media { padding: 5px; }
+  .storybook-theme .method-selector { padding: 9px; gap: 4px; }
+  .storybook-theme .method-selector strong { font-size: 13px; }
+  .storybook-theme .method-selector button > span:first-child { font-size: 16px; }
+  .storybook-theme .method-detail { padding: 26px 20px; }
+  .storybook-theme .portrait-note { font-size: 11px; }
+  .storybook-theme .case-cover > img { border-width: 5px; }
+  .storybook-theme .tab-list button { font-size: 14px; }
+  .storybook-theme .tab-list button > span { font-size: 11px; }
+  .storybook-theme .decision-number { font-size: 21px; }
+  .storybook-theme .case-callout p { font-size: 17px; }
+  .storybook-theme .hero::after,
+  .storybook-theme .contact::after { width: 100%; opacity: 0.09; }
+}
+@media (prefers-reduced-transparency: reduce) {
+  .storybook-theme .site-header { background: var(--paper); backdrop-filter: none; }
+  .storybook-theme :is(.hero, .method-section, .about, .case-page, .contact)::before,
+  .storybook-theme .hero::after,
+  .storybook-theme .contact::after { display: none; }
+}
+@media print {
+  html:has(.storybook-theme) { background: #fff; }
+  .storybook-theme {
+    --paper: #fff;
+    --paper-deep: #f5f4ef;
+    --ink: #20343a;
+    --muted: #475b62;
+    --accent: #725c27;
+    --line: #c8cdc9;
+    --tree-surface: #f6f6f2;
+    --tree-raised: #eef0eb;
+    --tree-selected: #eef0eb;
+    --tree-soft-ink: #2e4047;
+    --tree-image-ground: #fff;
+    --sb-night-violet: #eeedf1;
+    --sb-coral: #8e524a;
+    --sb-mist: #446473;
+    --sb-paper-edge: #dbd7ca;
+    background: #fff;
+  }
+  .storybook-theme :is(.hero, .method-section, .about, .case-page, .contact)::before,
+  .storybook-theme .hero::after,
+  .storybook-theme .contact::after { display: none; }
+  .storybook-theme .case-cover > img { border-width: 2px; }
+  .storybook-theme .spec-image img,
+  .storybook-theme .comparison a { border-width: 1px; }
+  .storybook-theme .case-callout p { font-size: 12pt; }
+}

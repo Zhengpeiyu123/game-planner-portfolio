@@ -1,0 +1,10 @@
+Huiwen Mincho subset font notice
+
+The bundled HuiwenMincho-ui.woff2 and HuiwenMincho-game.woff2 files are subsets
+of HuiwenMincho.ttf supplied to this project under the Creative Commons CC0 1.0
+Universal public-domain dedication.
+
+CC0 1.0 Universal: https://creativecommons.org/publicdomain/zero/1.0/
+
+The subsets were generated only from characters used by the shipped HTML,
+JavaScript, and CSS. They do not add restrictions to the original dedication.

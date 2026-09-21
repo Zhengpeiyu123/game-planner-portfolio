@@ -1,0 +1,136 @@
+/* The supplied pastel painting is the opening spread, not a texture on a 3D tree. */
+.storybook-theme .tree-experience { background: #1c2a43; color: #f3e5c9; }
+.storybook-sky,
+.storybook-opening { position: absolute; inset: 0; pointer-events: none; }
+.storybook-sky {
+  bottom: -8%; will-change: transform;
+  background: linear-gradient(90deg, #111d32d9, #18294077 58%, #15263eaa),
+    linear-gradient(#1c2a4355, #1c2a4366 60%, #1c2a43ee),
+    url('/assets/storybook/starry-sky.png') center / cover no-repeat;
+}
+.storybook-opening { z-index: 110; transform-origin: 57% 62%; will-change: transform, opacity; }
+.storybook-opening img { width: 140%; height: 140%; max-width: none; object-fit: cover; object-position: center; transform: translate(-12%, -3%); }
+.storybook-opening::after {
+  content: ''; position: absolute; inset: 0;
+  background: linear-gradient(90deg, #13233bbb, #17294080 28%, #17294012 61%, transparent),
+    linear-gradient(0deg, #15263ebf, transparent 26%, transparent 85%, #16263e33);
+}
+.storybook-theme .tree-introduction { left: 6.7%; top: 28%; width: 48%; text-shadow: 0 2px 26px #15243b5c; }
+.storybook-theme .tree-introduction .tree-eyebrow { font-size: 12px; letter-spacing: .19em; color: #f0d7b2; }
+.storybook-theme .tree-introduction .tree-eyebrow > span {
+  width: 13px; height: 13px; border-radius: 0; background: #e8cb83;
+  clip-path: polygon(50% 0, 60% 37%, 100% 50%, 60% 61%, 50% 100%, 40% 62%, 0 50%, 39% 38%);
+  box-shadow: none; transform: rotate(12deg);
+}
+.storybook-theme .tree-introduction h1 {
+  font-family: var(--sb-serif); font-size: clamp(42px, 4.45vw, 70px); font-weight: 500;
+  line-height: 1.55; letter-spacing: .035em; margin: 27px 0 22px -3px; color: #fff0d1;
+}
+.storybook-theme .tree-specialty { font-size: 13px; color: #e3dece; letter-spacing: .08em; margin-top: 0; }
+.storybook-theme .tree-hero-links { gap: 28px; margin-top: 36px; font-size: 13px; }
+.storybook-theme .tree-hero-links button {
+  padding: 12px 18px; min-height: 44px; color: #26334b; background: #eed6a8;
+  border: 1px solid #f3e4c4; border-radius: 3px 6px 2px 5px;
+  box-shadow: 3px 3px 0 #12213733; transition: background .2s, transform .2s;
+}
+.storybook-theme .tree-hero-links button:hover { background: #f9e6c4; transform: translateY(-2px) rotate(-1deg); }
+.storybook-theme .tree-hero-links a { color: #f1dfc1; padding: 11px 0; border-bottom: 1px dashed #efdbb97a; }
+.storybook-theme .tree-scroll-hint { left: 6.7%; right: 6.7%; bottom: 34px; font-size: 11px; color: #d3d8df; }
+.storybook-theme .tree-hint-line { width: 37px; height: 13px; background: none; border-bottom: 1px solid #e8cb83; transform: rotate(-7deg); }
+.storybook-theme .tree-edition { color: #c3cbd6; font-size: 9px; }
+
+/* Loose paper mounts hold unfiltered, factual project artwork. */
+.storybook-theme .tree-orbit-card {
+  padding: 5px; background: #e9dfc8; color: #f3e5c9;
+  border: 1px solid #e6d5b788; border-radius: 5px 9px 6px 4px;
+  box-shadow: 3px 5px 0 #111b2926, 0 18px 35px #0b152755;
+}
+.storybook-theme .tree-orbit-card:focus-visible { outline: 2px solid #f1d28e; outline-offset: 5px; }
+.storybook-theme .tree-card-image { border: 0; border-radius: 1px 3px 0 2px; box-shadow: none; background: #263650; height: 193px; }
+.storybook-theme .tree-card-image img { filter: none; }
+.storybook-theme .tree-orbit-card:hover .tree-card-image,
+.storybook-theme .tree-orbit-card:focus-visible .tree-card-image { box-shadow: none; }
+.storybook-theme .tree-card-open { background: #eee2c9; color: #26364a; border: 1px solid #cdbfaa; border-radius: 2px 4px 1px 3px; backdrop-filter: none; }
+.storybook-theme .tree-card-caption { position: absolute; top: calc(100% + 13px); left: 4px; right: 0; padding: 0; text-shadow: 0 2px 14px #07121c; }
+.storybook-theme .tree-card-caption h2 { font-family: var(--sb-serif); font-size: 22px; font-weight: 600; letter-spacing: .015em; }
+.storybook-theme .tree-card-number { font-family: var(--sb-script); font-size: 14px; font-style: italic; color: #edc792; }
+.storybook-theme .tree-card-caption p { color: #d2d4d7; margin-top: 5px; font-size: 11px; letter-spacing: .025em; }
+.tree-exit-wash { position: absolute; inset: 0; z-index: 600; background: #17253c; opacity: 0; visibility: hidden; pointer-events: none; }
+.painted-trunk-canvas { will-change: opacity; }
+.storybook-theme .orbit-about .tree-card-image { height: 260px; }
+.storybook-theme .tree-gallery-label { left: 6.7%; top: 19%; }
+.storybook-theme .tree-gallery-label .tree-eyebrow { color: #f0d6ac; font-size: 11px; letter-spacing: .16em; }
+.storybook-theme .tree-gallery-label h2 { font-family: var(--sb-serif); font-size: clamp(25px, 2.6vw, 39px); letter-spacing: .04em; margin-top: 17px; color: #f3e5c9; }
+.storybook-theme .tree-gallery-label > p:last-child { color: #d3d6df; font-size: 12px; line-height: 1.95; }
+.storybook-theme .tree-gallery-ui::before { height: 240px; background: linear-gradient(transparent, #17263edd); }
+.storybook-theme .tree-active-info { left: 6.7%; bottom: 11%; }
+.storybook-theme .tree-active-info > p { color: #c8d0df; font-size: 11px; letter-spacing: .1em; }
+.storybook-theme .tree-active-info > p > span { font-family: var(--sb-script); color: #f1d28e; font-size: 17px; font-style: italic; }
+.storybook-theme .tree-active-info > a { font-family: var(--sb-serif); font-size: 25px; }
+.storybook-theme .tree-active-info > a > span { color: #e9ac93; }
+.storybook-theme .tree-active-description { color: #d0d7e3; }
+.storybook-theme .tree-orbit-nav { right: 3.2%; gap: 1px; }
+.storybook-theme .tree-orbit-nav button { color: #ced5e0; min-width: 44px; min-height: 44px; font-family: var(--sb-script); font-size: 14px; gap: 13px; }
+.storybook-theme .tree-orbit-nav button i { width: 8px; height: 8px; border: 1px solid #e2c990; border-radius: 0; transform: rotate(45deg); }
+.storybook-theme .tree-orbit-nav button[aria-pressed='true'] { color: #ffe3a1; }
+.storybook-theme .tree-orbit-nav button[aria-pressed='true'] i { background: #ffe3a1; border-color: #ffe3a1; box-shadow: none; }
+.storybook-theme .tree-progress-fill { background: #e9ac93; }
+.storybook-theme .tree-utility { right: 6.7%; bottom: 23px; color: #e0e0dd; font-size: 11px; }
+.storybook-theme .tree-utility > span { color: #aab8ca; }
+.storybook-theme .tree-utility :is(a, button) { min-height: 32px; display: inline-flex; align-items: center; }
+
+/* Static, reduced-motion, and short-window layouts keep the same painted opening. */
+.storybook-theme .tree-static { position: relative; isolation: isolate; overflow: hidden; }
+.storybook-static-art { position: absolute; inset: 0 0 auto; width: 100%; height: 620px; object-fit: cover; opacity: .45; z-index: -2; }
+.storybook-theme .tree-static::before { content: ''; position: absolute; inset: 0; background: linear-gradient(90deg, #1c2a43a6, #1c2a4333), linear-gradient(transparent 200px, #1c2a43 620px); z-index: -1; }
+.storybook-theme .tree-static h1 { font-family: var(--sb-serif); line-height: 1.5; }
+.storybook-theme .tree-static-note { color: #c5cedd; }
+.storybook-theme .tree-static-projects a { padding: 8px 8px 18px; color: #26364a; background: #eee2c9; border-radius: 2px 5px 1px 3px; }
+.storybook-theme .tree-static-projects img { border-radius: 0; }
+.storybook-theme .tree-static-projects a > span { font-family: var(--sb-serif); margin-inline: 8px; }
+.storybook-theme .tree-static-projects small { color: #64696c; margin-inline: 8px; }
+
+@media (min-width: 1600px) {
+  .storybook-theme .tree-introduction { left: 9%; }
+  .storybook-theme .tree-gallery-label, .storybook-theme .tree-active-info { left: 9%; }
+}
+@media (max-width: 1000px) {
+  .storybook-theme .tree-introduction { left: 6%; }
+  .storybook-theme .tree-gallery-label, .storybook-theme .tree-active-info { left: 5%; }
+  .storybook-theme .tree-gallery-label h2 { font-size: 28px; }
+}
+@media (max-width: 699px) {
+  .storybook-opening img { object-position: 54% center; }
+  .storybook-opening::after { background: linear-gradient(#16283a91, #192b4166 40%, #16263b05 61%, #15263e99); }
+  .storybook-sky { background-position: center, center, 52% center; }
+  .storybook-theme .tree-introduction { left: 8%; top: 15%; width: 88%; }
+  .storybook-theme .tree-introduction .tree-eyebrow { font-size: 11px; letter-spacing: .12em; }
+  .storybook-theme .tree-introduction h1 { font-size: clamp(31px, 9.3vw, 48px); line-height: 1.55; margin: 21px 0 18px; letter-spacing: .01em; }
+  .storybook-theme .tree-specialty { font-size: 11px; letter-spacing: .03em; }
+  .storybook-theme .tree-hero-links { font-size: 12px; margin-top: 25px; gap: 22px; }
+  .storybook-theme .tree-hero-links button { padding: 10px 14px; }
+  .storybook-theme .tree-scroll-hint { bottom: 79px; font-size: 10px; left: 8%; }
+  .storybook-theme .tree-utility { bottom: 23px; left: 8%; right: 8%; font-size: 10px; }
+  .storybook-theme .tree-gallery-label { top: 14%; left: 8%; }
+  .storybook-theme .tree-gallery-label h2 { font-size: 25px; margin-top: 9px; }
+  .storybook-theme .tree-gallery-label .tree-eyebrow { font-size: 10px; }
+  .storybook-theme .tree-active-info { left: 8%; bottom: 12%; max-width: 76%; }
+  .storybook-theme .tree-active-info > p { font-size: 10px; }
+  .storybook-theme .tree-active-info > a { font-size: 23px; margin-top: 6px; }
+  .storybook-theme .tree-active-description { font-size: 11px; }
+  .storybook-theme .tree-orbit-nav { right: 1.5%; top: 53%; gap: 0; background: #192941d9; border: 1px solid #d8c49244; border-radius: 3px 7px 4px 2px; }
+  .storybook-theme .tree-orbit-nav button { font-size: 12px; gap: 8px; padding: 10px; }
+  .storybook-theme .tree-orbit-nav button i { width: 6px; height: 6px; }
+}
+@media (max-width: 699px) and (max-height: 740px) {
+  .storybook-theme .tree-introduction { top: 17%; }
+  .storybook-theme .tree-introduction h1 { margin: 14px 0 11px; font-size: 32px; }
+  .storybook-theme .tree-hero-links { margin-top: 19px; }
+  .storybook-theme .tree-gallery-label h2 { font-size: 21px; }
+}
+@media (prefers-reduced-transparency: reduce) {
+  .storybook-theme .tree-introduction { background: #1c2a43; padding: 20px; }
+}
+@media print {
+  .storybook-static-art, .storybook-theme .tree-static::before { display: none; }
+}

@@ -1,0 +1,16 @@
+{
+  "version": 1,
+  "coordinateSystem": "normalized image coordinates; origin top-left; +x right; +y down",
+  "imageSize": { "width": 1672, "height": 941 },
+  "phaseOrder": ["inspect", "dust", "stain", "crack", "blister", "back", "reveal", "complete"],
+  "assets": {
+    "damaged": "../images/damaged.png",
+    "restored": "../images/restored.png",
+    "poster": "../images/poster.png",
+    "fallbackVideo": "../video/complete-fallback.mp4"
+  },
+  "accessibility": {
+    "keyboard": "Arrow keys move the work cursor; 1-4 select tools; Space or Enter performs the current action; F toggles fullscreen.",
+    "reducedMotion": "Skip completion video and show the restored poster."
+  }
+}

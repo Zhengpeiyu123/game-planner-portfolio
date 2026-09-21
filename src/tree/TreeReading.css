@@ -1,0 +1,343 @@
+/* The reading layer shares the tree's night palette; project assets stay true to source. */
+html:has(.tree-theme) { background: #090e13; color-scheme: dark; }
+@keyframes tree-reading-arrive { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: translateY(0); } }
+.tree-theme .case-heading { animation: tree-reading-arrive 560ms cubic-bezier(.2,.65,.2,1) both; }
+.tree-theme .case-cover { animation: tree-reading-arrive 700ms 70ms cubic-bezier(.2,.65,.2,1) both; }
+.tree-theme {
+  --paper: #090e13;
+  --paper-deep: #11171c;
+  --ink: #f0eee7;
+  --muted: #a8adae;
+  --accent: #c0b58c;
+  --line: #ffffff20;
+  --tree-surface: #10161b;
+  --tree-raised: #171e22;
+  --tree-selected: #252a24;
+  --tree-soft-ink: #d1d3cf;
+  --tree-header: #090e13d9;
+  --tree-image-ground: #10161b;
+  min-height: 100dvh;
+  color: var(--ink);
+  background: var(--paper);
+  color-scheme: dark;
+}
+
+.tree-theme main { background: var(--paper); }
+.tree-theme ::selection { color: var(--paper); background: var(--accent); }
+.tree-theme :is(button, a, [tabindex]):focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 5px;
+}
+.tree-theme :is(.section-kicker, .eyebrow) {
+  color: var(--accent);
+  font-weight: 500;
+  letter-spacing: 0.14em;
+}
+.tree-theme :is(.section-heading h2, .about h2, .contact h2) {
+  font-weight: 400;
+  letter-spacing: -0.04em;
+  line-height: 1.45;
+}
+.tree-theme .text-link {
+  color: var(--ink);
+  border-bottom-color: var(--line);
+  font-weight: 450;
+  transition: color 180ms ease, border-color 180ms ease;
+}
+.tree-theme :is(.text-link, .back-link, .nav-contact):hover {
+  color: var(--accent);
+  border-bottom-color: var(--accent);
+}
+.tree-theme .skip-link { color: var(--ink); background: var(--tree-raised); }
+
+/* Compact navigation leaves the scene and the writing room to breathe. */
+.tree-theme .site-header {
+  height: 72px;
+  color: var(--ink);
+  background: var(--tree-header);
+  border-bottom-color: var(--line);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+}
+.tree-theme .header-paper { color: var(--ink); background: var(--tree-header); }
+.tree-theme .header-inner { gap: 24px; }
+.tree-theme .brand { font-size: 16px; gap: 10px; font-weight: 450; }
+.tree-theme .brand-mark {
+  width: 32px;
+  height: 36px;
+  color: var(--accent);
+  border-color: #c0b58c70;
+  border-radius: 0;
+  font-size: 22px;
+}
+.tree-theme .brand small { color: var(--muted); opacity: 1; font-size: 9px; }
+.tree-theme .desktop-nav { gap: 30px; color: var(--muted); font-size: 12px; }
+.tree-theme .desktop-nav a { transition: color 180ms ease, border-color 180ms ease; }
+.tree-theme .desktop-nav a:hover,
+.tree-theme .desktop-nav a[aria-current] { color: var(--ink); border-color: var(--accent); }
+.tree-theme .nav-contact { color: var(--tree-soft-ink); gap: 16px; font-size: 12px; }
+
+/* The alternate reading route has no background animation. */
+.tree-theme .hero {
+  height: auto;
+  min-height: 550px;
+  max-height: none;
+  color: var(--ink);
+  background: var(--paper);
+  border-bottom: 1px solid var(--line);
+}
+.tree-theme :is(.hero-video, .hero-scrim, .hero-motion-control) { display: none; }
+.tree-theme .hero-content { padding-top: 155px; padding-bottom: 100px; }
+.tree-theme .hero h1 { font-size: clamp(38px, 4.9vw, 70px); font-weight: 400; text-shadow: none; }
+.tree-theme .hero-kicker { color: var(--accent); }
+.tree-theme .hero-summary { color: var(--tree-soft-ink); }
+.tree-theme :is(.hero-summary span, .hero-bottom) { color: var(--muted); }
+.tree-theme .hero-resume { border-bottom-color: var(--line); }
+.tree-theme .button-primary {
+  color: var(--ink);
+  border-color: #c0b58c70;
+  background: transparent;
+  transition: color 180ms ease, background-color 180ms ease;
+}
+.tree-theme .button-primary:hover { color: var(--ink); background: var(--tree-selected); }
+.tree-theme .proof-strip { border-bottom-color: var(--line); }
+.tree-theme .proof-strip strong { color: var(--tree-soft-ink); font-weight: 400; font-variant-numeric: tabular-nums; }
+.tree-theme .proof-strip span { color: var(--muted); }
+.tree-theme .proof-strip small { color: var(--muted); }
+.tree-theme .proof-strip > a:hover { color: var(--accent); }
+
+/* Project images are evidence, framed with quiet dark margins rather than cards. */
+.tree-theme .projects { background: var(--paper); }
+.tree-theme .project-card { background: transparent; box-shadow: none; }
+.tree-theme .project-card-featured {
+  background: transparent;
+  border-block: 1px solid var(--line);
+  padding-block: 26px;
+}
+.tree-theme .project-card-featured .project-copy { padding-right: 0; padding-left: 38px; }
+.tree-theme .project-media { background: var(--tree-image-ground); }
+.tree-theme .project-media img { transition: none; }
+.tree-theme .project-image-link:hover img { transform: none; }
+.tree-theme .project-copy h3 { font-weight: 500; }
+.tree-theme .project-copy h3 a:hover { color: var(--accent); }
+.tree-theme .project-question { color: var(--tree-soft-ink); font-weight: 450; }
+.tree-theme .project-tags { color: var(--muted); }
+.tree-theme .project-tags li { border-color: var(--line); }
+.tree-theme .image-index { color: var(--ink); background: #090e13db; }
+.tree-theme .image-open {
+  color: var(--ink);
+  background: #090e13db;
+  border: 1px solid #f0eee73d;
+  border-radius: 0;
+}
+.tree-theme .project-image-link:hover .image-open { color: var(--accent); border-color: var(--accent); }
+
+/* An index and a reading column; active states use one restrained olive tint. */
+.tree-theme :is(.method-section, .about) { background: var(--paper); border-top-color: var(--line); }
+.tree-theme .method-workbench { background: transparent; border-block: 1px solid var(--line); }
+.tree-theme .method-selector { padding: 20px 20px 20px 0; border-color: var(--line); }
+.tree-theme .method-selector button {
+  color: var(--muted);
+  border-color: var(--line);
+  background: transparent;
+  transition: color 180ms ease, background-color 180ms ease;
+}
+.tree-theme .method-selector button:hover { color: var(--ink); background: var(--tree-surface); }
+.tree-theme .method-selector button.selected {
+  color: var(--ink);
+  background: var(--tree-selected);
+  border-color: var(--line);
+  box-shadow: inset 2px 0 0 var(--accent);
+}
+.tree-theme .method-selector button.selected > span:first-child { color: var(--accent); opacity: 1; }
+.tree-theme .method-detail { background: transparent; }
+.tree-theme .method-detail h3 { font-weight: 500; line-height: 1.65; }
+.tree-theme .method-detail > p:not(.eyebrow) { color: var(--muted); line-height: 1.95; }
+.tree-theme .method-example p { color: var(--tree-soft-ink); line-height: 1.95; }
+.tree-theme .method-example { border-left-width: 1px; }
+.tree-theme .method-output { border-color: var(--line); }
+.tree-theme .method-output strong { color: var(--tree-soft-ink); }
+.tree-theme .portrait-frame { background: var(--tree-image-ground); }
+.tree-theme .portrait-frame img { filter: saturate(0.7); }
+.tree-theme .lead { color: var(--tree-soft-ink); line-height: 1.95; }
+.tree-theme .about-practice { line-height: 1.95; }
+.tree-theme .experience-list h3 { color: var(--tree-soft-ink); font-weight: 500; }
+.tree-theme .experience-list time { font-variant-numeric: tabular-nums; }
+
+/* Case details: intent, rules, and proof all retain clear typographic hierarchy. */
+.tree-theme .case-page { background: var(--paper); }
+.tree-theme .case-heading { padding-top: 112px; }
+.tree-theme .case-heading h1 { font-weight: 450; }
+.tree-theme .case-subtitle { color: var(--tree-soft-ink); line-height: 1.8; }
+.tree-theme .case-position { border-left-width: 1px; }
+.tree-theme .case-facts strong { color: var(--tree-soft-ink); font-weight: 450; }
+.tree-theme .case-cover > img { background: var(--tree-image-ground); }
+.tree-theme .case-sidebar { top: 104px; }
+.tree-theme .scope-note p { color: var(--tree-soft-ink); }
+.tree-theme .design-brief h2 { line-height: 1.5; font-weight: 500; }
+.tree-theme .brief-boundary {
+  background: transparent;
+  border-block: 1px solid var(--line);
+  padding-inline: 0;
+  color: var(--muted);
+}
+.tree-theme .design-flow { border-inline: 0; border-color: var(--line); background: var(--line); }
+.tree-theme .design-flow li { background: var(--paper); }
+.tree-theme .design-flow strong { color: var(--tree-soft-ink); font-weight: 500; }
+.tree-theme .tab-list { top: 71px; background: var(--paper); }
+.tree-theme .tab-list button {
+  color: var(--muted);
+  font-weight: 450;
+  transition: color 180ms ease, background-color 180ms ease;
+}
+.tree-theme .tab-list button:hover { color: var(--ink); background: var(--tree-surface); }
+.tree-theme .tab-list button[aria-selected="true"] {
+  color: var(--ink);
+  background: var(--tree-selected);
+  border-bottom-color: var(--accent);
+  font-weight: 500;
+}
+.tree-theme .tab-list button[aria-selected="true"] > span { color: var(--accent); }
+.tree-theme .panel-heading h2 { font-weight: 500; line-height: 1.5; }
+.tree-theme .decision h3 { font-weight: 500; line-height: 1.55; }
+.tree-theme .decision dd { color: var(--tree-soft-ink); font-size: 14px; }
+.tree-theme .decision .decision-check {
+  background: var(--tree-surface);
+  border-left: 1px solid #c0b58c66;
+}
+.tree-theme .route-explorer {
+  background: transparent;
+  border-block: 1px solid var(--line);
+  padding-inline: 0;
+}
+.tree-theme .route-options button {
+  color: var(--muted);
+  border-color: var(--line);
+  transition: color 180ms ease, border-color 180ms ease, background-color 180ms ease;
+}
+.tree-theme .route-options button:hover { color: var(--ink); border-color: var(--accent); }
+.tree-theme .route-options button[aria-pressed="true"] {
+  color: var(--ink);
+  background: var(--tree-selected);
+  border-color: #c0b58c88;
+}
+.tree-theme .route-result { border-color: var(--line); }
+.tree-theme .route-result p { color: var(--tree-soft-ink); font-size: 14px; }
+.tree-theme .case-callout { border-left-width: 1px; }
+.tree-theme .case-callout p { color: var(--tree-soft-ink); font-weight: 400; }
+.tree-theme .table-scroll {
+  color: var(--tree-soft-ink);
+  background: var(--paper);
+  border-color: var(--line);
+  scrollbar-width: thin;
+  scrollbar-color: #536057 var(--tree-surface);
+}
+.tree-theme table { font-size: 13px; font-variant-numeric: tabular-nums; }
+.tree-theme caption { color: var(--ink); background: var(--tree-raised); }
+.tree-theme thead th { color: var(--muted); background: var(--tree-surface); }
+.tree-theme tbody th { color: var(--ink); font-weight: 500; }
+.tree-theme tbody td { color: var(--tree-soft-ink); }
+.tree-theme tbody tr:nth-child(even) { background: var(--tree-surface); }
+.tree-theme :is(.spec-image img, .comparison a) { background: var(--tree-image-ground); border-color: var(--line); }
+.tree-theme .spec-checklist { border-left-width: 1px; }
+.tree-theme .spec-checklist li::marker { color: var(--accent); }
+.tree-theme .comparison > div > div > span { color: var(--tree-soft-ink); }
+.tree-theme .review-list h3 { color: var(--ink); font-weight: 500; }
+.tree-theme .review-list p { line-height: 1.95; font-size: 14px; }
+.tree-theme .materials { background: transparent; padding: 28px 0 0; border-top: 1px solid var(--line); }
+.tree-theme .material-link { border-color: var(--line); }
+.tree-theme .material-link strong { color: var(--tree-soft-ink); }
+.tree-theme .material-link:hover strong { color: var(--accent); }
+.tree-theme .next-project h2 { font-weight: 400; }
+.tree-theme .next-project > a { transition: color 180ms ease; }
+
+/* The last section keeps the same night sky and uses only a dividing rule. */
+.tree-theme .contact {
+  color: var(--ink);
+  background: var(--paper);
+  border-top: 1px solid var(--line);
+}
+.tree-theme .contact .section-kicker { color: var(--accent); }
+.tree-theme .contact-inner > div > p:last-child,
+.tree-theme .contact-links > a:nth-child(2) { color: var(--muted); }
+.tree-theme .contact-email { font-weight: 400; color: var(--ink); }
+.tree-theme .contact-links .text-link { color: var(--tree-soft-ink); }
+.tree-theme .contact a:hover { color: var(--accent); }
+.tree-theme footer { color: var(--muted); border-color: var(--line); }
+
+@media (max-width: 1100px) {
+  .tree-theme .project-card-featured .project-copy { padding-left: 26px; }
+}
+@media (max-width: 780px) {
+  .tree-theme .site-header { height: 66px; }
+  .tree-theme .header-inner { gap: 16px; }
+  .tree-theme .brand { font-size: 14px; }
+  .tree-theme .brand-mark { width: 28px; height: 32px; font-size: 20px; }
+  .tree-theme .brand small { font-size: 8px; }
+  .tree-theme .desktop-nav { gap: 19px; font-size: 11px; }
+  .tree-theme .hero { min-height: 540px; }
+  .tree-theme .hero-content { padding-top: 145px; }
+  .tree-theme .project-card-featured .project-copy { padding: 28px 0 0; }
+  .tree-theme .method-selector { padding: 12px 0; }
+  .tree-theme .method-selector button.selected { box-shadow: inset 0 -1px 0 var(--accent); }
+  .tree-theme .case-heading { padding-top: 97px; }
+  .tree-theme .case-sidebar { top: auto; }
+  .tree-theme .tab-list { top: 65px; }
+}
+@media (max-width: 520px) {
+  .tree-theme .header-inner { gap: 10px; }
+  .tree-theme .brand { gap: 8px; font-size: 14px; }
+  .tree-theme .desktop-nav { gap: 14px; font-size: 11px; }
+  .tree-theme .hero { min-height: 560px; }
+  .tree-theme .hero-content { padding-top: 145px; padding-bottom: 125px; }
+  .tree-theme .hero h1 { font-size: clamp(33px, 8.8vw, 44px); }
+  .tree-theme .hero-summary { font-size: 14px; }
+  .tree-theme .project-card-featured { padding-block: 20px; }
+  .tree-theme .project-copy h3 { font-size: 27px; }
+  .tree-theme .method-detail { padding-inline: 0; }
+  .tree-theme .method-selector button { padding-inline: 8px; }
+  .tree-theme .brief-boundary { padding-block: 17px; }
+  .tree-theme .decision dd { font-size: 13px; }
+  .tree-theme .route-explorer { padding-block: 22px; }
+  .tree-theme .route-result p { font-size: 13px; }
+  .tree-theme table { font-size: 12px; }
+  .tree-theme .review-list p { font-size: 13px; }
+  .tree-theme .materials { padding-top: 22px; }
+}
+
+@media (prefers-reduced-transparency: reduce) {
+  .tree-theme .site-header { background: var(--paper); backdrop-filter: none; -webkit-backdrop-filter: none; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .tree-theme *, .tree-theme *::before, .tree-theme *::after { transition: none !important; }
+}
+@media print {
+  html:has(.tree-theme) { background: white; color-scheme: light; }
+  .tree-theme .case-heading, .tree-theme .case-cover { animation: none; }
+  .tree-theme {
+    --paper: #fff;
+    --paper-deep: #f3f4f1;
+    --ink: #17221d;
+    --muted: #47534b;
+    --accent: #675b30;
+    --line: #cdd3cb;
+    --tree-surface: #f7f8f5;
+    --tree-raised: #edf0e9;
+    --tree-selected: #edf0e9;
+    --tree-soft-ink: #25312a;
+    --tree-image-ground: #fff;
+    background: #fff;
+    color: var(--ink);
+    color-scheme: light;
+  }
+  .tree-theme .case-heading { padding-top: 0; }
+  .tree-theme .case-sidebar { top: auto; }
+  .tree-theme .case-heading h1 { font-size: 30pt; }
+  .tree-theme .decision dd, .tree-theme .review-list p { font-size: 10pt; }
+  .tree-theme .table-scroll { background: #fff; }
+  .tree-theme table { font-size: 9pt; }
+  .tree-theme .hero { min-height: 0; }
+  .tree-theme .hero-content { padding-block: 12mm; }
+  .tree-theme .hero-bottom, .tree-theme .hero-actions { display: none; }
+  .tree-theme .project-card-featured { break-inside: avoid; }
+}

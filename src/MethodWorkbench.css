@@ -1,0 +1,53 @@
+/* Practical design notes inside the existing dark, hand-drawn reading page. */
+.method-approach {
+  list-style: none;
+  margin: 28px 0 30px;
+  padding: 0;
+}
+.method-approach li {
+  display: grid;
+  grid-template-columns: 28px minmax(0, 1fr);
+  gap: 14px;
+  padding: 15px 0;
+  border-top: 1px dashed var(--line);
+}
+.method-step-index {
+  color: var(--accent);
+  font-family: var(--sb-script, Georgia, serif);
+  font-size: 16px;
+  font-variant-numeric: tabular-nums;
+  line-height: 1.7;
+}
+.method-approach h4, .method-checks h4 {
+  margin: 0 0 5px;
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--ink);
+}
+.method-approach p {
+  max-width: 38em;
+  margin: 0;
+  font-size: 13px;
+  line-height: 1.9;
+  color: var(--muted);
+  text-wrap: pretty;
+}
+.method-checks { margin-top: 26px; }
+.method-checks h4 { color: var(--accent); font-size: 12px; letter-spacing: .08em; }
+.method-checks ul { margin: 9px 0 0; padding-left: 18px; }
+.method-checks li { font-size: 13px; line-height: 1.9; margin-top: 6px; color: var(--muted); }
+.method-checks li::marker { color: var(--accent); font-size: 9px; }
+.method-detail > .method-evidence-note {
+  font-size: 11px;
+  line-height: 1.8;
+  margin-top: 18px;
+  color: var(--muted);
+}
+.method-selector button:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
+@media (min-width: 901px) {
+  .method-selector { position: sticky; top: 100px; align-self: start; }
+}
+@media (max-width: 600px) {
+  .method-approach { margin-block: 22px; }
+  .method-approach li { grid-template-columns: 22px minmax(0, 1fr); gap: 10px; }
+}

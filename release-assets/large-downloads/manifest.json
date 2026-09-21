@@ -1,0 +1,24 @@
+{
+  "version": 1,
+  "target": "public/downloads/huazhongren-project-introduction-updated.pptx",
+  "bytes": 118161891,
+  "sha256": "370308a2ed189effbed0cbaf7986c2a62d08093b846ad24dcf1bb895c2f599c1",
+  "chunkBytes": 41943040,
+  "parts": [
+    {
+      "file": "huazhongren-project-introduction-updated.pptx.part-001",
+      "bytes": 41943040,
+      "sha256": "42df65f0908a3e089d44a0f1dd0784d0e375ffe5b0c0925d707775071d2e23f2"
+    },
+    {
+      "file": "huazhongren-project-introduction-updated.pptx.part-002",
+      "bytes": 41943040,
+      "sha256": "6cc02539cd1b9510726b1a8e930db41f213b1ae6d50c8b717e111dcf3d9114a3"
+    },
+    {
+      "file": "huazhongren-project-introduction-updated.pptx.part-003",
+      "bytes": 34275811,
+      "sha256": "3933e29769485253e6f0648e147bb5ecf05300be98c7233eea06b1eeef4ba28b"
+    }
+  ]
+}

@@ -1,0 +1,33 @@
+.tree-cat {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 0;
+  height: 0;
+  visibility: hidden;
+  pointer-events: none;
+  user-select: none;
+  transform-style: preserve-3d;
+  z-index: 2;
+}
+.tree-cat-pose {
+  position: absolute;
+  display: block;
+  width: var(--cat-size);
+  height: var(--cat-size);
+  background: url('/assets/storybook/pastel-cat-atlas.png') 0 0 / 400% 200% no-repeat;
+  filter: drop-shadow(0 0.7px 0.6px #e4b98b55);
+}
+.tree-cat-shadow {
+  position: absolute;
+  display: block;
+  width: calc(var(--cat-size) * 0.62);
+  height: 3px;
+  border-radius: 50%;
+  background: #172238;
+  filter: blur(1.4px);
+  transform-origin: center;
+}
+@media (prefers-reduced-motion: reduce) {
+  .tree-cat { display: none; }
+}
