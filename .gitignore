@@ -17,6 +17,7 @@ dist-ssr
 
 # Rebuilt without loss from checked-in, SHA256-verified chunks.
 /public/downloads/huazhongren-project-introduction-updated.pptx
+/public/downloads/huazhongren-design-v5.pptx
 
 # Local art-direction notes contain workstation paths, not website content.
 /docs/

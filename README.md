@@ -82,7 +82,7 @@ VITE_BASE_PATH=/game-planner-portfolio/ pnpm preview
 
 打开预览输出的 `/game-planner-portfolio/` 地址，而不是域名根目录。`src/publicUrl.js` 统一处理图片、下载与原型路径；CSS 静态资源由 Vite 重写。外部游戏地址与 hash 页面链接保持不变。
 
-更新版 PPT 超过 GitHub 普通 Git 的单文件限制，因此完整文件不直接提交；`release-assets/large-downloads/` 保存三个不超过 40 MiB 的无损分片与 SHA256 清单。`pnpm build` / `pnpm dev` 自动还原到原下载路径，文件内容不作压缩或修改。也可独立检查：
+更新版 PPT 超过 GitHub 普通 Git 的单文件限制，另一份较大 PPT 也采用分片以提高上传可靠性。因此两份完整 PPT 不直接提交；`release-assets/large-downloads/` 保存十一个不超过 16 MiB 的无损分片与 SHA256 清单。`pnpm build` / `pnpm dev` 自动还原到原下载路径，文件内容不作压缩或修改。也可独立检查：
 
 ```sh
 node scripts/large-downloads.mjs verify
